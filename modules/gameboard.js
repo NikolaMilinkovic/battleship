@@ -123,34 +123,3 @@ export default class Gameboard {
         });
     }
 }
-
-const gameboard = new Gameboard();
-gameboard.init();
-// gameboard.placeShip('Carrier', 1, 'x', 3, 0);
-console.log(gameboard.placeShip('Carrier', 3, 'x', 3, 0));
-console.log(gameboard.placeShip('Submarine', 3, 'x', 3, 0));
-console.log(gameboard.receiveAttack(3, 0));
-console.log(gameboard.receiveAttack(2, 0));
-console.log(gameboard.receiveAttack(1, 0));
-console.log(gameboard.receiveAttack(0, 0));
-console.log(gameboard.receiveAttack(4, 0));
-console.log(gameboard.receiveAttack(5, 0));
-console.log(gameboard.receiveAttack(6, 0));
-console.log(gameboard.receiveAttack(7, 0));
-console.log(gameboard.receiveAttack(9, 0));
-console.log(`Ship hit: ${gameboard.ships.Carrier.hits} times!`);
-console.log(`Ship sunk: ${gameboard.ships.Carrier.sunk}`);
-console.log(gameboard.isAllSunk());
-gameboard.sinkAll();
-console.log(gameboard.isAllSunk());
-console.log(`Ship sunk: ${gameboard.ships.Destroyer.sunk}`);
-console.log(`Ship sunk: ${gameboard.ships.Submarine.sunk}`);
-console.log(`Ship sunk: ${gameboard.ships.Cruiser.sunk}`);
-console.log(`Ship sunk: ${gameboard.ships.Battleship.sunk}`);
-console.log(gameboard.isAllSunk());
-
-// console.log(gameboard.Battleship);
-// console.log(gameboard.Cruiser);
-// console.log(gameboard.fields);
-// gameboard.placeShip('Destroyer', 1, 'y', 3, 1);
-// module.exports = Gameboard;

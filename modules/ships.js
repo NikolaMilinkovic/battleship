@@ -42,5 +42,3 @@ export default class Ship {
         return false;
     }
 }
-
-// module.exports = Ship;
