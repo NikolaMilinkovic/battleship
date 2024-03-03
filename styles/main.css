@@ -45,17 +45,197 @@ table {
 
 /*  <<< \CSS RESET FILE >>>  */
 
-
-:root {
-
-}
-html, body {
-    display: flex;
+/*  <-- PARALLAX SETTINGS -->  */
+.parallax {
     width: 100%;
     height: 100%;
-    background-color: black;
+    position: relative;
+    z-index: 0;
+    display: grid;
+    grid-template-areas: "stack";
+    animation: page-load linear 1.5s;
+}
+.parallax > *{
+    grid-area: stack;
+}
+.parallax>img{
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    user-select: none;
+}
+.para{
+    scale: 1.05;
+}
+
+
+/*  <-- \PARALLAX SETTINGS -->  */
+@keyframes page-load {
+    from{
+        opacity: 0;
+        scale: 1.15;
+    } 
+    to{
+        opacity: 1;
+        scale: 1;
+    }
+}
+:root{ 
+    background-color: #160038;
+    overflow: hidden;
+    font-family: Helvetica, sans-serif, Arial;
+
+    --color: #c1f3f3;
+    --focus-color: #10a7a7;
+    --input-blue-color: #006595;
+
+}
+h1{
+    color: var(--color);
+    font-size: 22px;
+    margin-bottom: 10%;
+    font-weight: bold;
+}
+h2{
+    color: var(--color);
+    font-size: 16px;
+    font-weight: bold;
+}
+.form-container{
+    top: 32%;
+    left: 38%;
+    right: 38%;
+
+    top: 32vh;
+    left: 38vw;
+    right: 38vw;
+    
+    height: 250px;
+    width: 400px;
+    position: absolute;
+    background-color: var(--background-color);
+    background-color: rgba(0, 13, 31, 0.7);
+}
+form{
+    display: flex;
+    flex-direction: column;
+    padding: 15% 15%;
+}
+.gap{
+    margin-top: 15px;
+}
+input{
+    background-color: rgba(0, 13, 31, 1);
+    color: #ffffff;
+    border: none;
+    outline: none;
+    border-top: 1px solid black;
+    border-bottom: 1px solid var(--input-blue-color);
+    font-size: 16px;
+    padding: 1% 5%;
+}
+input::placeholder{
+    color: var(--input-blue-color);
+}
+input:focus::placeholder{
+    background-color: rgba(0, 13, 31, 1);
+    color: var(--focus-color);
+}
+input:focus{
+    outline: none;
+    border: 1px solid var(--focus-color);
+    box-shadow: 0 0 10px var(--focus-color);
+}
+input:-webkit-autofill{
+    -webkit-text-fill-color: white;   
+    -webkit-background-clip: text;
+}
+#btn-play {
+    border-radius: 15px;
+    padding: 0.6rem 1.7rem;
+    background-image: linear-gradient(to right, #1A428F 0%, #10a7a7  51%, #1A428F  100%);
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: var(--color);
+    border: none;  
+    display: block;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    min-width: 100px;
+}
+#btn-play:hover {
+    background-position: right center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* <-- BTN ANIMATIONS --> */
+#btn-play:active{
+    animation: btn-submit 0.15s ease-in-out;
+}
+.btn-submit-active{
+    animation: btn-submit 0.3s ease-in-out;
+}
+@keyframes btn-submit {
+    from{
+        transform: scale(1);
+    }
+    to{
+        transform: scale(0.95);
+    }
+}
+#btn-container{
+    display: inline-block;
+    position: relative;
+    margin-left: auto;
+    margin-top: 10%;
+}
+#btn-flex-container{
+    margin-top: auto;
+    display: flex;
+}
+button:after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top:0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: all 0.5s;
+    box-shadow: 0 0 10px 20px #10a7a7;
+    border-radius: 15px;
+}
+button:active:after {
+    box-shadow: 0 0 0 0 #10a7a7;
+    border-radius: 15px;
+    position: absolute;
+    left: 0;
+    top:0;
+    opacity: 1;
+    transition: 0s;
+}
+button:focus{
+    outline: 2px solid var(--focus-color);
+}
+/* <-- \BTN ANIMATIONS --> */
+
+
+
+
+
+
+
+html, body {
+    background-color: #001064;
+    overflow: hidden;
+    display: flex;
+    width: 100dvw;
+    height: 100dvh;
+    width: 100vw;
+    height: 100vh; 
     box-sizing: content-box;
-    padding: 5vh;
     box-sizing: border-box;
 }
 #content{
@@ -84,4 +264,8 @@ html, body {
     background-color: yellowgreen;
     border: 2px solid red;
     padding: 5vh;
+}
+#player-container{
+    display: flex;
+    flex-direction: column;
 }

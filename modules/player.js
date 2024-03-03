@@ -7,6 +7,9 @@ export default class Player {
         this.alreadyHitField = [];
     }
 
+    getPlayerName(name) {
+        this.name = name;
+    }
 
     attack(cordX, cordY, gameboard) {
         if (this.alreadyHitField.some((field) => field[0] === cordX && field[1] === cordY)) return;

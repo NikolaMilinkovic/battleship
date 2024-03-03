@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 3150 1400">
+  <defs>
+    <style>
+      .cls-1 {
+        isolation: isolate;
+      }
+
+      .cls-2 {
+        fill: url(#_Áåçûìÿííûé_ãðàäèåíò_382);
+      }
+
+      .cls-2, .cls-3 {
+        fill-rule: evenodd;
+      }
+
+      .cls-4 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-5 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #92c2c4;
+        mix-blend-mode: multiply;
+        opacity: .5;
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-5" width="3150" height="1400"/>
+    </clipPath>
+    <linearGradient id="_Áåçûìÿííûé_ãðàäèåíò_382" data-name="Áåçûìÿííûé ãðàäèåíò 382" x1="482.93" y1="1287.39" x2="482.93" y2="1082.91" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#005489"/>
+      <stop offset=".17" stop-color="#024378"/>
+      <stop offset=".48" stop-color="#062a60"/>
+      <stop offset=".77" stop-color="#081b51"/>
+      <stop offset="1" stop-color="#09164c"/>
+    </linearGradient>
+  </defs>
+  <g class="cls-1">
+    <g id="Layer_2" data-name="Layer 2">
+      <g id="layer1">
+        <g class="cls-4">
+          <g>
+            <polygon class="cls-2" points="966.04 1287.39 932.72 1268 882.48 1269.54 878.12 1285.88 857.28 1234.37 729.95 1209.33 704.75 1276.28 661.81 1123.78 331.51 1095.48 -.03 1082.91 -.17 1284.78 966.04 1287.39"/>
+            <polygon class="cls-3" points="-.03 1082.91 99.29 1087.35 172.44 1285.15 146.7 1284.79 78.73 1126.15 134.85 1285.15 -.17 1284.78 -.03 1082.91"/>
+            <polygon class="cls-3" points="240.54 1285.15 195.53 1129.81 206.41 1138.02 301.55 1285.6 240.54 1285.15"/>
+            <polygon class="cls-3" points="298.12 1134.41 336.67 1198.37 317.39 1144.14 298.12 1134.41"/>
+            <polygon class="cls-3" points="443.47 1285.6 397.74 1195.79 456.06 1287.09 443.47 1285.6"/>
+            <polygon class="cls-3" points="729.95 1209.33 780.35 1225.88 792.73 1286.92 703.43 1285.86 704.75 1276.28 729.95 1209.33"/>
+            <polygon class="cls-3" points="882.48 1269.54 898.84 1269.04 906.13 1286.92 878.06 1286.92 882.48 1269.54"/>
+            <polygon class="cls-3" points="482.93 1108.46 507.44 1235.2 517.74 1286.18 547.35 1286.92 490.16 1109.08 482.93 1108.46"/>
+            <polygon class="cls-3" points="561.51 1286.3 695.66 1243.97 572.45 1286.33 561.51 1286.3"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
