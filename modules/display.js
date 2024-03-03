@@ -17,11 +17,11 @@ function preventDefault(event) {
 }
 
 function play() {
-    const input = document.getElementById('input-player');
-    gameStart(input.value);
-    playerName = input.value;
-    clearDisplay();
-    gameDisplay();
+    // const input = document.getElementById('input-player');
+    // gameStart(input.value);
+    // playerName = input.value;
+    // clearDisplay();
+    // gameDisplay();
 }
 
 function getPlayer() {
