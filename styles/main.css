@@ -92,13 +92,12 @@ table {
 }
 h1{
     color: var(--color);
-    font-size: 22px;
-    margin-bottom: 10%;
+    font-size: 46px;
     font-weight: bold;
 }
 h2{
     color: var(--color);
-    font-size: 16px;
+    font-size: 22px;
     font-weight: bold;
 }
 .form-container{
@@ -109,12 +108,22 @@ h2{
     top: 32vh;
     left: 38vw;
     right: 38vw;
-    
-    height: 250px;
+
+    height: 330px;
     width: 400px;
     position: absolute;
     background-color: var(--background-color);
     background-color: rgba(0, 13, 31, 0.7);
+}
+.hero-container{
+    text-align: center;
+    align-self: flex-start;
+    justify-self: center;
+}
+.header-container{
+    align-items: center;
+    text-align: center;
+    margin-top: 5%;
 }
 form{
     display: flex;
