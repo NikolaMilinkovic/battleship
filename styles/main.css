@@ -68,18 +68,19 @@ table {
     scale: 1.05;
 }
 #para-9{
-    width: 400px;
-    translate: -100% 30%;
-    animation: 52s ship-travails linear infinite;
-    object-fit: fill;
+    translate: -100;
+    animation: 42s ship-travails linear infinite;
+    /* object-fit: fill; */
 }
+
+
 
 @keyframes ship-travails {
     from{
-        translate: -100% 30%;
+        transform: translate(-100%);
     }
     to{
-        translate: 650% 30%;
+        transform: translate(150%);
     }
 }
 
@@ -154,7 +155,7 @@ input{
     outline: none;
     border-top: 1px solid black;
     border-bottom: 1px solid var(--input-blue-color);
-    font-size: 16px;
+    font-size: 20px;
     padding: 1% 5%;
 }
 input::placeholder{
