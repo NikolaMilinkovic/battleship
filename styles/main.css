@@ -67,10 +67,15 @@ table {
 .para{
     scale: 1.05;
 }
-#para-9{
+#para-10{
     translate: -100;
+    
+    /* Ship transition variables > used for smooth ship transition */
+    --ship-pos-x: 0px;
+    --ship-pos-y: 0px;
+}
+.ship-travails{
     animation: 42s ship-travails linear infinite;
-    /* object-fit: fill; */
 }
 
 
@@ -103,6 +108,8 @@ table {
     --color: #c1f3f3;
     --focus-color: #10a7a7;
     --input-blue-color: #006595;
+
+
 
 }
 h1{
@@ -293,3 +300,107 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+
+
+/* PARALLAX TRANSITION */
+.transition-para-1{
+    animation: 2.7s background-transition linear forwards;
+}
+.transition-para-2{
+    animation: 2.7s moon-transition linear forwards;
+}
+.transition-para-3{
+    animation: 2.7s left-transition linear forwards;
+}
+.transition-para-4{
+    animation: 2.7s right-transition linear forwards;
+}
+.transition-para-5{
+    animation: 2.7s right-transition linear forwards;
+}
+.transition-para-6{
+    animation: 2.7s left-transition linear forwards;
+}
+.transition-para-7{
+    animation: 2.7s right-transition linear forwards;
+}
+.transition-para-8{
+    animation: 2.7s left-transition linear forwards;
+}
+.transition-para-9{
+    animation: 2.7s down-transition linear forwards;
+}
+.transition-para-10{
+    animation: 2.7s ship-transition linear forwards;
+}
+.transition-form-container {
+    animation: 2.7s form-container-transition linear forwards;
+}
+@keyframes form-container-transition {
+    to {
+        transform: translateY(15vh);
+        transform: translateY(-20vh);
+        scale: 2.5;
+        opacity: 0;
+        display: none;
+    }
+}
+@keyframes background-transition {
+    to {
+        transform: translateY(15vh);
+        scale: 2.5;
+        opacity: 0;
+        display: none;
+    }
+}
+@keyframes ship-transition {
+    from{
+        transform: translate(var(--ship-pos-x), var(--ship-pos-y));
+    }
+    to {
+        opacity: 0;
+        transform: translate(150%);
+        display: none;
+    }
+}
+@keyframes moon-transition {
+    to {
+        transform: translateY(15vh);
+        transform: translateY(-20vh);
+        scale: 2.5;
+        opacity: 0;
+        display: none;
+    }
+}
+@keyframes right-transition {
+    to {
+        transform: translateX(-110vw);
+        display: none;
+    }
+}
+@keyframes left-transition {
+    to {
+        transform: translateX(110vw);
+        display: none;
+    }
+}
+@keyframes down-transition {
+    to {
+        transform: translateY(8vh);
+        display: none;
+    }
+}
+@keyframes root-background{
+    from {
+        background-color: #160038;
+    }
+    to {
+        background-color: #5C0C43;
+    }
+}
+/* \PARALLAX TRANSITION */
+
+
+/* SHIP CABIN */
+
+/* \SHIP CABIN */
