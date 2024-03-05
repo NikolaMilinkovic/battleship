@@ -67,7 +67,21 @@ table {
 .para{
     scale: 1.05;
 }
+#para-9{
+    width: 400px;
+    translate: -100% 30%;
+    animation: 52s ship-travails linear infinite;
+    object-fit: fill;
+}
 
+@keyframes ship-travails {
+    from{
+        translate: -100% 30%;
+    }
+    to{
+        translate: 650% 30%;
+    }
+}
 
 /*  <-- \PARALLAX SETTINGS -->  */
 @keyframes page-load {
