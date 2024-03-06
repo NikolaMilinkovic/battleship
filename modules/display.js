@@ -43,6 +43,7 @@ function checkNameInput() {
     return true;
 }
 
+// Handles transitioning from welcome page into ship cabin page
 function transitionPage() {
     const ship = document.getElementById('para-10');
     const position = ship.getBoundingClientRect();
@@ -60,6 +61,7 @@ function transitionPage() {
     setTimeout(displayShipCabin, 2720);
 }
 
+// Handles displaying ship cabin page
 function displayShipCabin() {
     const paraEls = [];
     const imgArr = [
@@ -79,42 +81,19 @@ function displayShipCabin() {
         paraEl.classList.remove('display-none');
     });
 
+    // Adds bottle and pirate idle animations
     setTimeout(() => {
         const pirate = document.getElementById('para-cabin-4');
         const bottle = document.getElementById('para-cabin-2');
         pirate.classList.add('pirate-idle');
         bottle.classList.add('bottle-rolling');
     }, 2900);
+
+    // Starts dialogue
     setTimeout(() => {
         body.appendChild(createDiv(['ship-cabin-dialogue-container'], 'dialogue-container'));
-        const parentEl = document.getElementById('dialogue-container');
-        playAudioSequence(greetDialogues, greetText, parentEl);
+        startCabinDialogue();
     }, 3500);
-}
-
-function getDialogueBox(parentEl, textFile) {
-    const box = createDiv(['dialogue-blob'], '');
-    const charName = createPara('', ['char-name-label'], '', 'para');
-    const para = createPara('', ['dialogue-box-text'], '', 'para');
-    box.appendChild(charName);
-    box.appendChild(para);
-    parentEl.appendChild(box);
-    printText(para, charName, textFile);
-}
-function printText(para, charName, textFile) {
-    const text = [...textFile.text];
-
-    let delay = 0;
-    charName.innerHTML += `${textFile.character}<br>`;
-    for (let i = 0; i < text.length; i++) {
-        setTimeout(() => {
-            if (text[i] === '\n') {
-                para.innerHTML += '<br>';
-            }
-            para.innerHTML += text[i];
-        }, delay);
-        delay += 35;
-    }
 }
 const greetText = [
     {
@@ -130,29 +109,105 @@ const greetText = [
         character: 'Jolly Roger Jack',
     },
 ];
-
 const greetDialogues = [
     './audio/pirate-greet-1.mp3',
     './audio/parrot-abandon.mp3',
     './audio/pirate-greet-2.mp3',
 ];
+const positionFleetBtns = [
+    {
+        text: 'Plan fleet positions',
+        classes: ['cabin-btn'],
+        id: 'btn-organize-fleet',
+        clickMethod: planFleet,
+    },
+    {
+        text: 'Let Jack plan the positions',
+        classes: ['cabin-btn'],
+        id: 'btn-randomize-fleet',
+        clickMethod: randomizeFleet,
+    },
+];
+
+function planFleet() {
+    console.log('running planFleet');
+}
+function randomizeFleet() {
+    console.log('running planFleet');
+}
+
+// Method for handling cabin dialogue
+function startCabinDialogue() {
+    const parentEl = document.getElementById('dialogue-container');
+    playAudioSequence(greetDialogues, greetText, parentEl)
+        .then(() => {
+            getDialogueBtns(parentEl, positionFleetBtns);
+        })
+        .catch((error) => {
+            console.error('Error during audio playback:', error);
+        });
+}
+
+// Displays dialogue box and calls for printText method
+function getDialogueBox(parentEl, textFile) {
+    const box = createDiv(['dialogue-blob'], '');
+    const charName = createPara('', ['char-name-label'], '', 'para');
+    const para = createPara('', ['dialogue-box-text'], '', 'para');
+    box.appendChild(charName);
+    box.appendChild(para);
+    parentEl.appendChild(box);
+    printText(para, charName, textFile);
+}
+// Prints out text in the dialogue box
+function printText(para, charName, textFile) {
+    const text = [...textFile.text];
+
+    let delay = 0;
+    charName.innerHTML += `${textFile.character}<br>`;
+    for (let i = 0; i < text.length; i++) {
+        setTimeout(() => {
+            if (text[i] === '\n') {
+                para.innerHTML += '<br>';
+            }
+            para.innerHTML += text[i];
+        }, delay);
+        delay += 35;
+    }
+}
+
+// Method for displaying buttons in dialogue box
+// btnAttributes is an object with all button data
+function getDialogueBtns(parentEl, btnAttributes) {
+    const box = createDiv(['dialogue-blob', 'dialogue-btns'], '');
+    btnAttributes.forEach((btn) => {
+        const button = createButton(btn.text, btn.classes, btn.id);
+        button.addEventListener('click', btn.clickMethod);
+        box.appendChild(button);
+    });
+
+    parentEl.appendChild(box);
+}
+
 
 // Method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
-    let i = 0;
-    function playNextAudio() {
-        const audio = new Audio(audioFiles[i]);
-        getDialogueBox(parentEl, textFiles[i]);
-        audio.addEventListener('ended', () => {
-            i++;
-            if (i < audioFiles.length) {
-                playNextAudio();
-            }
-        });
-        audio.play();
-    }
-
-    playNextAudio();
+    return new Promise((resolve, reject) => {
+        let i = 0;
+        function playNextAudio() {
+            const audio = new Audio(audioFiles[i]);
+            getDialogueBox(parentEl, textFiles[i]);
+            audio.addEventListener('ended', () => {
+                i++;
+                if (i < audioFiles.length) {
+                    playNextAudio();
+                } else {
+                    resolve();
+                }
+            });
+            audio.play();
+        }
+        playNextAudio();
+    });
 }
 
 
