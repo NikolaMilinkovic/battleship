@@ -336,6 +336,9 @@ html, body {
 .transition-form-container {
     animation: 2.7s form-container-transition linear forwards;
 }
+.sunrise-background-color{
+    animation: root-background linear 2.7s forwards; 
+}
 @keyframes form-container-transition {
     to {
         transform: translateY(15vh);
@@ -398,9 +401,57 @@ html, body {
         background-color: #5C0C43;
     }
 }
+@keyframes daylight-transition{
+    from {
+        background-color: #160038;
+    }
+    to {
+        background-color: #5C0C43;
+    }
+}
 /* \PARALLAX TRANSITION */
 
 
 /* SHIP CABIN */
-
+.cabin-fade-in-transition{
+    animation: 2s cabin-fade-in ease-in forwards;
+}
+@keyframes cabin-fade-in {
+    from{
+        opacity: 0;
+        scale: 1.35;
+    } 
+    to{
+        opacity: 1;
+        scale: 1;
+    }
+}
+.bottle-rolling{
+    animation: 2s bottle-roll ease-in infinite alternate;
+}
+.pirate-idle{
+    animation: 6s pirate-idle ease-in infinite alternate;
+}
+@keyframes bottle-roll {
+    from {
+        transform: translate(0%, 0%);
+    }
+    to {
+        transform: translate(2%, -1%);
+    }
+}
+@keyframes pirate-idle {
+    from {
+        transform: translateY(0px);
+        transform: scale(1);
+    }
+    50% {
+        transform: translateY(-10px);
+        transform: scale(1.005);
+    }
+    to {
+        transform: translateY(0px);
+        transform: scale(1);
+    }
+}
 /* \SHIP CABIN */

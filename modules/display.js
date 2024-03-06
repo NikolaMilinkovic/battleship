@@ -7,6 +7,7 @@ import { enablePara, disablePara } from './para.js';
 
 const { body } = document;
 const form = document.getElementById('form');
+const formContainer = document.getElementById('form-container');
 const paraContainer = document.getElementById('parallax-container');
 const playerInputContainer = createDiv('', 'player-input-container');
 const btnPlay = document.getElementById('btn-play');
@@ -26,7 +27,6 @@ function preventDefault(event) {
 
 // Welcome screen logic & transition into game
 function play(event) {
-    console.log('play called');
     if (event.type === 'click' || event.type === 'Enter') {
         preventDefault(event);
         if (!checkNameInput()) return;
@@ -50,11 +50,12 @@ function transitionPage() {
     const posY = position.y;
     ship.style.setProperty('--ship-pos-x', `${posX}px`);
     ship.style.setProperty('--ship-pos-y', `${posY}px`);
-    form.classList.add('transition-form-container');
+    formContainer.classList.add('transition-form-container');
     for (let i = 1; i < 11; i++) {
         const el = document.getElementById(`para-${i}`);
         el.classList.add(`transition-para-${i}`);
     }
+    body.classList.add('sunrise-background-color');
     setTimeout(clearDisplay, 2700);
     setTimeout(displayShipCabin, 2720);
 }
@@ -63,20 +64,56 @@ function displayShipCabin() {
     const paraEls = [];
     const imgArr = [
         { src: './img/pirate-cabin/background.svg', x: 0, y: 0 },
-        { src: './img/pirate-cabin/barrels-left.svg', x: 0, y: 0 },
-        { src: './img/pirate-cabin/table-shadow.svg', x: 0, y: 0 },
-        { src: './img/pirate-cabin/table.svg', x: 0, y: 0 },
-        { src: './img/pirate-cabin/chair.svg', x: 0, y: 0 },
-        { src: './img/pirate-cabin/chest.svg', x: 0, y: 0 },
-        { src: './img/pirate-cabin/boards.svg', x: 0, y: 0 },
+        { src: './img/pirate-cabin/floor-bottle.svg', x: 0.01, y: 0.005 },
+        { src: './img/pirate-cabin/globe.svg', x: 0, y: 0 },
+        { src: './img/pirate-cabin/pirate.svg', x: 0.015, y: 0 },
     ];
-    for (let i = 1; i < 8; i++) {
-        const img = paraImg(imgArr[i - 1].src, ['para'], `para-cabin-${i + 1}`, imgArr[i - 1].x, imgArr[i - 1].y);
+    for (let i = 1; i <= imgArr.length; i++) {
+        const img = paraImg(imgArr[i - 1].src, ['para', 'display-none'], `para-cabin-${i}`, imgArr[i - 1].x, imgArr[i - 1].y);
         paraEls.push(img);
     }
 
     appendChildren(paraContainer, paraEls);
+    paraEls.forEach((paraEl) => {
+        paraEl.classList.add('cabin-fade-in-transition');
+        paraEl.classList.remove('display-none');
+    });
+
+    setTimeout(() => {
+        const pirate = document.getElementById('para-cabin-4');
+        const bottle = document.getElementById('para-cabin-2');
+        pirate.classList.add('pirate-idle');
+        bottle.classList.add('bottle-rolling');
+    }, 2900);
+    setTimeout(() => {
+        playAudioSequence(greetDialogues);
+    }, 3500);
 }
+
+const greetDialogues = [
+    './audio/pirate-greet-1.mp3',
+    './audio/parrot-abandon.mp3',
+    './audio/pirate-greet-2.mp3',
+];
+
+// Method for playing audio files in sequence
+function playAudioSequence(audioFiles) {
+    let i = 0;
+    function playNextAudio() {
+        const audio = new Audio(audioFiles[i]);
+        audio.addEventListener('ended', () => {
+            i++;
+            if (i < audioFiles.length) {
+                playNextAudio();
+            }
+        });
+        audio.play();
+    }
+
+    playNextAudio();
+}
+
+
 // Welcome screen logic & transition into game
 function getPlayer() {
     const inputContainer = createDiv('', 'input-container');
