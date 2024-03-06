@@ -10,7 +10,6 @@ export function enablePara() {
 }
 
 function moveBackground(e) {
-    console.log(enableParallax);
     if (enableParallax !== true) return;
     const { body } = document;
     const parallaxElements = document.querySelectorAll('.para');

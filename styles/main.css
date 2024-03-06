@@ -454,4 +454,47 @@ html, body {
         transform: scale(1);
     }
 }
+.ship-cabin-dialogue-container{
+    display: flex;
+    width: 100%;
+    position: absolute;
+    top: 10vh;
+    left: calc(50vw - 150px);
+    flex-direction: column;
+    align-self: center;
+    justify-self: center;
+    max-width: 400px;
+}
+.dialogue-blob{
+    display: flex;
+    flex-direction: column;
+    min-width: 100%;
+    background-color: white;
+    padding: 16px;
+    margin: 16px;
+    box-sizing: border-box;
+    border-radius: 20px;
+    border: 6px solid #560F15;
+    animation: show-dialogue-box 700ms;
+} 
+
+@keyframes show-dialogue-box {
+    from {
+        transform: rotate(-30deg) translateX(100%) scaleX(-0.1); 
+        opacity: 0;
+    }
+    to {
+        transform: rotate(0deg) translateX(0%) scaleX(1); 
+        opacity: 1;
+    }
+}
+.char-name-label{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.dialogue-box-text{
+    margin-left: 16px;
+    line-height: 1.5;
+}
 /* \SHIP CABIN */

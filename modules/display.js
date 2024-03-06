@@ -86,9 +86,50 @@ function displayShipCabin() {
         bottle.classList.add('bottle-rolling');
     }, 2900);
     setTimeout(() => {
-        playAudioSequence(greetDialogues);
+        body.appendChild(createDiv(['ship-cabin-dialogue-container'], 'dialogue-container'));
+        const parentEl = document.getElementById('dialogue-container');
+        playAudioSequence(greetDialogues, greetText, parentEl);
     }, 3500);
 }
+
+function getDialogueBox(parentEl, textFile) {
+    const box = createDiv(['dialogue-blob'], '');
+    const charName = createPara('', ['char-name-label'], '', 'para');
+    const para = createPara('', ['dialogue-box-text'], '', 'para');
+    box.appendChild(charName);
+    box.appendChild(para);
+    parentEl.appendChild(box);
+    printText(para, charName, textFile);
+}
+function printText(para, charName, textFile) {
+    const text = [...textFile.text];
+
+    let delay = 0;
+    charName.innerHTML += `${textFile.character}<br>`;
+    for (let i = 0; i < text.length; i++) {
+        setTimeout(() => {
+            if (text[i] === '\n') {
+                para.innerHTML += '<br>';
+            }
+            para.innerHTML += text[i];
+        }, delay);
+        delay += 35;
+    }
+}
+const greetText = [
+    {
+        text: 'Good mornin captain. \nThe fleet of captain Blackbeard Bones has been spotted to have entered the bay.\nAt this point our encounter is inevitable!',
+        character: 'Jolly Roger Jack',
+    },
+    {
+        text: 'Abandon ship! Abandon ship!',
+        character: 'Scaredy Parrot Pete',
+    },
+    {
+        text: 'Shut it you cowardly chicken! \nAs I was saying, we should prepare our fleet for battle, would you like to plan out our fleet positions now?',
+        character: 'Jolly Roger Jack',
+    },
+];
 
 const greetDialogues = [
     './audio/pirate-greet-1.mp3',
@@ -97,10 +138,11 @@ const greetDialogues = [
 ];
 
 // Method for playing audio files in sequence
-function playAudioSequence(audioFiles) {
+function playAudioSequence(audioFiles, textFiles, parentEl) {
     let i = 0;
     function playNextAudio() {
         const audio = new Audio(audioFiles[i]);
+        getDialogueBox(parentEl, textFiles[i]);
         audio.addEventListener('ended', () => {
             i++;
             if (i < audioFiles.length) {
