@@ -435,11 +435,6 @@ function clearElChildren(parent) {
     }
 }
 // ==========================[\OTHER GENERAL METHODS]==========================
-// cordX: 0
-// cordY: 1
-// hasShip: false
-// isShot: false
-// shipType: null
 
 function buildGrid() {
     const board = createDiv([], 'player-board');
