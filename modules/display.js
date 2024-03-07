@@ -496,7 +496,7 @@ function buildGrid() {
                     console.log(playerBoard.fields);
                     updateBoard();
                     console.log(playerBoard.fields);
-                    setTimeout(checkForUnplacedShips, 1500);
+                    setTimeout(checkForUnplacedShips, 500);
                 }
             }
         });
