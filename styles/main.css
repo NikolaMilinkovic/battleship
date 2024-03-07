@@ -63,9 +63,11 @@ table {
     height: 100vh;
     object-fit: cover;
     user-select: none;
+    pointer-events: none;
 }
 .para{
     scale: 1.05;
+    pointer-events: none;
 }
 #para-10{
     translate: -100;
@@ -108,10 +110,61 @@ table {
     --color: #c1f3f3;
     --focus-color: #10a7a7;
     --input-blue-color: #006595;
-
-
-
 }
+#volume-container {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    gap: 1rem;
+    top: 50px;
+    right: 50px;
+}
+.audio-control{
+    height: 35px;
+    width: 35px;
+    cursor: pointer;
+}
+.audio-control:hover{
+    transform: scale(1.1);
+}
+.audio-control:active{
+    transform: scale(1);
+}
+#volume-slider {
+    visibility: none;
+    height: 5px;
+	min-width: 150px;
+	background: #555;
+	border-radius: 15px;
+    opacity: 0;
+}
+.display-none{
+    display: none;
+}
+.slider-show{
+    animation: show-slider 0.3s ease forwards;
+}
+@keyframes show-slider {
+    to {
+        display: block;
+        visibility: visible;
+        opacity: 1;
+    }
+}
+#volume-slider.ui-slider-range-min {
+    height: 5px;
+    min-width: 150px;
+    border: none;
+    border-radius: 10px;
+}
+#volume-slider.ui-slider-handle {
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    margin-top: -2px;
+    cursor: pointer;
+}
+
 h1{
     color: var(--color);
     font-size: 46px;
@@ -155,7 +208,7 @@ form{
 .gap{
     margin-top: 15px;
 }
-input{
+#input-player{
     background-color: rgba(0, 13, 31, 1);
     color: #ffffff;
     border: none;
@@ -165,19 +218,19 @@ input{
     font-size: 20px;
     padding: 1% 5%;
 }
-input::placeholder{
+#input-player::placeholder{
     color: var(--input-blue-color);
 }
-input:focus::placeholder{
+#input-player:focus::placeholder{
     background-color: rgba(0, 13, 31, 1);
     color: var(--focus-color);
 }
-input:focus{
+#input-player:focus{
     outline: none;
     border: 1px solid var(--focus-color);
     box-shadow: 0 0 10px var(--focus-color);
 }
-input:-webkit-autofill{
+#input-player:-webkit-autofill{
     -webkit-text-fill-color: white;   
     -webkit-background-clip: text;
 }

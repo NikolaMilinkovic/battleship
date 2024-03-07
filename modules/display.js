@@ -1,3 +1,4 @@
+/* eslint-disable operator-linebreak */
 /* eslint-disable prefer-destructuring */
 import {
     createDiv, createPara, createInput, appendChildren, createButton, paraImg,
@@ -5,16 +6,17 @@ import {
 import Player from './player.js';
 import gameStart from './game.js';
 import { enablePara, disablePara } from './para.js';
+import {
+    getVolumeSlider, getIcon, getAudioControls, getVolumeIcons,
+} from './audioControls.js';
 
 const { body } = document;
 const form = document.getElementById('form');
 const formContainer = document.getElementById('form-container');
 const paraContainer = document.getElementById('parallax-container');
-const playerInputContainer = createDiv('', 'player-input-container');
 const btnPlay = document.getElementById('btn-play');
 const inputName = document.getElementById('input-player');
 btnPlay.addEventListener('click', play);
-
 let draggedEl;
 let playerName;
 
@@ -25,19 +27,82 @@ function preventDefault(event) {
 }
 // End of prevent default code
 
+
 // Night ambience sound
-const nightAmbience = new Audio('./audio/night-ambience.mp3');
-nightAmbience.loop = true;
-nightAmbience.volume = 0.2;
-nightAmbience.addEventListener('loadedmetadata', () => {
-    playAmbience();
+let audio = new Audio('./audio/night-ambience.mp3');
+audio.loop = true;
+audio.volume = 1;
+audio.addEventListener('canplaythrough', () => {
+    console.log('Audio is ready to play');
+    audio.play();
 });
-function playAmbience() {
-    nightAmbience.play();
+// Wait for audio to load then play it
+
+function playAudio() {
+    console.log('Playing audio:');
+    console.log(audio);
+    console.log(`Volume: ${audio.volume}`);
+    audio.addEventListener('canplaythrough', () => {
+        console.log('Audio is ready to play');
+        audio.play();
+    });
+    audio.addEventListener('play', () => {
+        console.log('Audio is playing');
+    });
+
+    audio.addEventListener('error', (event) => {
+        console.error('Error occurred:', event);
+    });
 }
-function pauseAmbience() {
-    nightAmbience.pause();
+function pauseAudio() {
+    audio.pause();
 }
+
+
+// ================================[AUDIO CONTROLS]================================
+let cachedAudioVolume = audio.volume;
+
+const volumeIcons = getVolumeIcons();
+const icon = getIcon();
+const slider = getVolumeSlider();
+slider.value = 0;
+const audioControls = getAudioControls(slider, icon);
+
+icon.addEventListener('click', () => {
+    if (icon.src.toString().includes(volumeIcons.volX.slice(1)) ||
+        icon.src.toString().includes(volumeIcons.volXWhite.slice(1))) {
+        audio.volume = cachedAudioVolume;
+        slider.value = cachedAudioVolume * 100;
+        if (audio.volume >= 0.5) icon.src = volumeIcons.volHighWhite;
+        if (audio.volume > 0 && audio.volume < 0.5) icon.src = volumeIcons.volLowWhite;
+        playAudio();
+    } else {
+        icon.src = volumeIcons.volXWhite;
+        cachedAudioVolume = audio.volume;
+        audio.volume = 0;
+        slider.value = 0;
+        pauseAudio();
+    }
+});
+slider.addEventListener('change', (event) => {
+    audio.volume = event.currentTarget.value / 100;
+    console.log(audio.volume);
+    if (audio.volume >= 0.5) icon.src = volumeIcons.volHighWhite;
+    if (audio.volume > 0 && audio.volume < 0.5) icon.src = volumeIcons.volLowWhite;
+    if (audio.volume === 0) icon.src = volumeIcons.volXWhite;
+});
+audioControls.addEventListener('mouseenter', () => {
+    slider.classList.add('slider-show');
+    slider.classList.remove('display-none');
+});
+audioControls.addEventListener('mouseleave', () => {
+    slider.classList.remove('slider-show');
+    slider.classList.add('display-none');
+});
+body.appendChild(audioControls);
+
+
+// ================================[\AUDIO CONTROLS]================================
 
 // Welcome screen logic & transition into game
 function play(event) {
@@ -46,7 +111,7 @@ function play(event) {
         if (!checkNameInput()) return;
         disablePara();
         transitionPage();
-        setTimeout(pauseAmbience, 2600);
+        // setTimeout(pauseAmbience, 2600);
     }
 }
 
@@ -285,7 +350,7 @@ function playAudioSequence(audioFiles, textFiles, parentEl) {
     return new Promise((resolve, reject) => {
         let i = 0;
         function playNextAudio() {
-            const audio = new Audio(audioFiles[i]);
+            audio = new Audio(audioFiles[i]);
             getDialogueBox(parentEl, textFiles[i]);
             audio.addEventListener('ended', () => {
                 i++;
