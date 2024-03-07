@@ -27,47 +27,37 @@ function preventDefault(event) {
 }
 // End of prevent default code
 
-
+// ================================[AUDIO CONTROLS]================================
 // Night ambience sound
 let audio = new Audio('./audio/night-ambience.mp3');
 audio.loop = true;
-audio.volume = 1;
-audio.addEventListener('canplaythrough', () => {
-    console.log('Audio is ready to play');
-    audio.play();
-});
-// Wait for audio to load then play it
-
-function playAudio() {
-    console.log('Playing audio:');
-    console.log(audio);
-    console.log(`Volume: ${audio.volume}`);
-    audio.addEventListener('canplaythrough', () => {
-        console.log('Audio is ready to play');
-        audio.play();
-    });
-    audio.addEventListener('play', () => {
-        console.log('Audio is playing');
-    });
-
-    audio.addEventListener('error', (event) => {
-        console.error('Error occurred:', event);
-    });
-}
-function pauseAudio() {
-    audio.pause();
-}
-
-
-// ================================[AUDIO CONTROLS]================================
+audio.volume = 0.5;
 let cachedAudioVolume = audio.volume;
-
+let isAudioRunning = false;
+let inCabin = false;
 const volumeIcons = getVolumeIcons();
 const icon = getIcon();
 const slider = getVolumeSlider();
 slider.value = 0;
 const audioControls = getAudioControls(slider, icon);
 
+function playAudio() {
+    audio.play();
+}
+function pauseAudio(audioEl) {
+    let volume = slider.value / 100;
+    let timer = 0;
+    for (let i = 0; i < volume / 0.1; i++) {
+        setTimeout(() => {
+            volume -= 0.1;
+            audioEl.volume = volume;
+        }, timer);
+        timer += 600;
+    }
+    if (volume <= 0) audio.pause();
+}
+
+// Handles Muting and Unmuting the sound for application
 icon.addEventListener('click', () => {
     if (icon.src.toString().includes(volumeIcons.volX.slice(1)) ||
         icon.src.toString().includes(volumeIcons.volXWhite.slice(1))) {
@@ -75,35 +65,44 @@ icon.addEventListener('click', () => {
         slider.value = cachedAudioVolume * 100;
         if (audio.volume >= 0.5) icon.src = volumeIcons.volHighWhite;
         if (audio.volume > 0 && audio.volume < 0.5) icon.src = volumeIcons.volLowWhite;
-        playAudio();
+        if (isAudioRunning === false && inCabin === false) {
+            playAudio();
+            isAudioRunning = true;
+        }
     } else {
         icon.src = volumeIcons.volXWhite;
         cachedAudioVolume = audio.volume;
         audio.volume = 0;
         slider.value = 0;
-        pauseAudio();
+        setVol(audio);
     }
 });
+// Handles changing the sould levels via range input for the app
 slider.addEventListener('change', (event) => {
-    audio.volume = event.currentTarget.value / 100;
-    console.log(audio.volume);
+    setVol(audio);
     if (audio.volume >= 0.5) icon.src = volumeIcons.volHighWhite;
     if (audio.volume > 0 && audio.volume < 0.5) icon.src = volumeIcons.volLowWhite;
     if (audio.volume === 0) icon.src = volumeIcons.volXWhite;
 });
+// Handles displaying volume input slider
 audioControls.addEventListener('mouseenter', () => {
     slider.classList.add('slider-show');
     slider.classList.remove('display-none');
 });
+// Handles hiding volume input slider
 audioControls.addEventListener('mouseleave', () => {
     slider.classList.remove('slider-show');
     slider.classList.add('display-none');
 });
+// Method for setting the current audio track volume to the slider value
+function setVol(audioEl) {
+    audioEl.volume = slider.value / 100;
+}
 body.appendChild(audioControls);
-
-
 // ================================[\AUDIO CONTROLS]================================
 
+
+// ================================[TRANSITION INTO SHIP CABIN]================================
 // Welcome screen logic & transition into game
 function play(event) {
     if (event.type === 'click' || event.type === 'Enter') {
@@ -111,7 +110,9 @@ function play(event) {
         if (!checkNameInput()) return;
         disablePara();
         transitionPage();
-        // setTimeout(pauseAmbience, 2600);
+        pauseAudio(audio);
+        audio.loop = false;
+        inCabin = true;
     }
 }
 
@@ -175,6 +176,10 @@ function displayShipCabin() {
         startCabinDialogue();
     }, 3500);
 }
+// ================================[\TRANSITION INTO SHIP CABIN]================================
+
+
+// ================================[SHIP CABIN DIALOGUE LOGIC]================================
 const greetText = [
     {
         text: 'Good mornin captain. \nThe fleet of captain Blackbeard Bones has been spotted to have entered the bay.\nAt this point our encounter is inevitable!',
@@ -254,7 +259,43 @@ function positionShips(parentEl) {
     container.classList.add('cabin-map-display');
 }
 
-// =======================[ DRAG AND DROP LOGIC ]=======================
+// Method for handling cabin dialogue,
+// Takes dialogue and text information and sends it to respective handling methods
+function startCabinDialogue() {
+    const parentEl = document.getElementById('dialogue-container');
+    playAudioSequence(greetDialogues, greetText, parentEl)
+        .then(() => {
+            getDialogueBtns(parentEl, positionFleetBtns);
+        })
+        .catch((error) => {
+            console.error('Error during audio playback:', error);
+        });
+}
+// GENERAL method for playing audio files in sequence
+function playAudioSequence(audioFiles, textFiles, parentEl) {
+    return new Promise((resolve, reject) => {
+        let i = 0;
+        function playNextAudio() {
+            audio = new Audio(audioFiles[i]);
+            setVol(audio);
+            getDialogueBox(parentEl, textFiles[i]);
+            audio.addEventListener('ended', () => {
+                i++;
+                if (i < audioFiles.length) {
+                    playNextAudio();
+                } else {
+                    resolve();
+                }
+            });
+            audio.play();
+        }
+        playNextAudio();
+    });
+}
+// ================================[\SHIP CABIN DIALOGUE LOGIC]================================
+
+
+// =============================[ DRAG AND DROP LOGIC ]=============================
 function createShip(size, type) {
     const ship = createDiv(['place-ship'], '');
     ship.setAttribute('draggable', 'true');
@@ -279,8 +320,10 @@ function getDragEl() {
 function dropEl() {
     draggedEl = null;
 }
+// =============================[ \DRAG AND DROP LOGIC ]=============================
 
 
+// ==========================[DISPLAY DIALOGUE BOXES GENERAL METHODS]==========================
 // Fades out all children elements and display:none them
 function fadeOutElements(parentEl) {
     return new Promise((resolve, reject) => {
@@ -291,19 +334,6 @@ function fadeOutElements(parentEl) {
         setTimeout(() => resolve(), 1000);
     });
 }
-
-// Method for handling cabin dialogue
-function startCabinDialogue() {
-    const parentEl = document.getElementById('dialogue-container');
-    playAudioSequence(greetDialogues, greetText, parentEl)
-        .then(() => {
-            getDialogueBtns(parentEl, positionFleetBtns);
-        })
-        .catch((error) => {
-            console.error('Error during audio playback:', error);
-        });
-}
-
 // Displays dialogue box and calls for printText method
 function getDialogueBox(parentEl, textFile) {
     const box = createDiv(['dialogue-blob'], '');
@@ -343,29 +373,10 @@ function getDialogueBtns(parentEl, btnAttributes) {
 
     parentEl.appendChild(box);
 }
+// ==========================[\DISPLAY DIALOGUE BOXES GENERAL METHODS]==========================
 
 
-// Method for playing audio files in sequence
-function playAudioSequence(audioFiles, textFiles, parentEl) {
-    return new Promise((resolve, reject) => {
-        let i = 0;
-        function playNextAudio() {
-            audio = new Audio(audioFiles[i]);
-            getDialogueBox(parentEl, textFiles[i]);
-            audio.addEventListener('ended', () => {
-                i++;
-                if (i < audioFiles.length) {
-                    playNextAudio();
-                } else {
-                    resolve();
-                }
-            });
-            audio.play();
-        }
-        playNextAudio();
-    });
-}
-
+// ==========================[OTHER GENERAL METHODS]==========================
 function clearDisplay() {
     while (paraContainer.firstChild) {
         paraContainer.firstChild.remove();
@@ -376,6 +387,8 @@ function clearElChildren(parent) {
         parent.firstChild.remove();
     }
 }
+// ==========================[\OTHER GENERAL METHODS]==========================
+
 
 function buildGrid() {
     const board = createDiv([], 'player-board');
