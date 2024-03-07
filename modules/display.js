@@ -110,6 +110,7 @@ body.appendChild(audioControls);
 function play(event) {
     if (event.type === 'click' || event.type === 'Enter') {
         preventDefault(event);
+        btnPlay.disabled = true;
         if (!checkNameInput()) return;
         disablePara();
         transitionPage();
@@ -225,6 +226,15 @@ const shipsPositionedText = [
 const shipsPositionedDialogue = [
     './audio/ships-placed-dialogue.mp3',
 ];
+const shipsRandomizedText = [
+    {
+        text: 'Don\'t worry captain, I will plan out the fleet positions and set everything up for the upcoming battle. Those bastards won\'t know what hit em!',
+        character: 'Jolly Roger Jack',
+    },
+];
+const shipsRandomizedAudio = [
+    './audio/ship-placed-random-dialogue.mp3',
+];
 
 // Player fleet organization path
 function planFleet() {
@@ -247,6 +257,13 @@ function randomizeFleet() {
     fadeOutElements(parentEl)
         .then(() => {
             clearElChildren(parentEl);
+            playerBoard = initPlayerBoard(playerName);
+            getRandomizedMap(parentEl);
+        })
+        .then(() => {
+            playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
+            parentEl.appendChild(playerBoardReference);
+            playerBoardReference.classList.add('cabin-map-display');
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
@@ -262,6 +279,20 @@ function displayMap(parentEl) {
     pBoardContainer.appendChild(grid);
     parentEl.appendChild(pBoardContainer);
     pBoardContainer.classList.add('cabin-map-display');
+}
+function getRandomizedMap(parentEl) {
+    const pBoardContainer = document.createElement('div');
+    pBoardContainer.classList.add('player-board-container');
+    playerBoard.init();
+    return playerBoard.placeShipsRandomly()
+        .then(() => {
+            const grid = buildGrid();
+            pBoardContainer.appendChild(grid);
+            playerBoardReference = pBoardContainer;
+        })
+        .catch((error) => {
+            console.error('Error during dialogue box removal:', error);
+        });
 }
 // Method for displaying drag & drop ships
 function positionShips(parentEl) {
@@ -280,13 +311,13 @@ function positionShips(parentEl) {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    // playAudioSequence(greetDialogues, greetText, parentEl)
-    //     .then(() => {
-    getDialogueBtns(parentEl, positionFleetBtns);
-    // })
-    // .catch((error) => {
-    //     console.error('Error during audio playback:', error);
-    // });
+    playAudioSequence(greetDialogues, greetText, parentEl)
+        .then(() => {
+            getDialogueBtns(parentEl, positionFleetBtns);
+        })
+        .catch((error) => {
+            console.error('Error during audio playback:', error);
+        });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
@@ -319,11 +350,9 @@ let shipType = '';
 let clickValue = '';
 function setShipType(type) {
     shipType = type;
-    console.log(`Type: ${shipType}`);
 }
 function setClickValue(value) {
     clickValue = value;
-    console.log(`ClickValue: ${clickValue}`);
 }
 function createShip(size, type) {
     const ship = createDiv(['place-ship'], '');
@@ -465,8 +494,8 @@ function buildGrid() {
                 if (playerBoard.placeShip(shipType, clickValue, 'x', x, y) === true) {
                     event.target.appendChild(draggedEl);
                     updateBoard();
+                    setTimeout(checkForUnplacedShips, 1500);
                 }
-                setTimeout(checkForUnplacedShips, 1500);
             }
         });
         board.appendChild(field);

@@ -39,6 +39,52 @@ export default class Gameboard {
         }
     }
 
+    placeShipsRandomly() {
+        return new Promise((resolve, reject) => {
+            const shipsPlaced = {
+                ship1: false,
+                ship2: false,
+                ship3: false,
+                ship4: false,
+                ship5: false,
+            };
+            const shipsTypes = {
+                type1: 'Carrier',
+                type2: 'Battleship',
+                type3: 'Cruiser',
+                type4: 'Submarine',
+                type5: 'Destroyer',
+            };
+            function randomInteger(min, max) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            }
+            function getOrientation() {
+                const ran = randomInteger(0, 1);
+                if (ran > 0) {
+                    return 'x';
+                }
+                return 'y';
+            }
+            for (let i = 0; i < 5; i++) {
+                console.log(`placing ship: ${i + 1}`);
+                let shipPlaced = false;
+                while (!shipsPlaced[`ship${i + 1}`]) {
+                    const orientation = getOrientation();
+                    const x = randomInteger(0, 9);
+                    const y = randomInteger(0, 9);
+                    shipPlaced = this.placeShip(shipsTypes[`type${i + 1}`], 0, orientation, x, y);
+                    if (shipPlaced) {
+                        shipsPlaced[`ship${i + 1}`] = true;
+                        console.log(`Ship placed! ${shipPlaced}`);
+                    }
+                }
+            }
+            console.log('LOGGING FINISHED FIELDS');
+            console.log(this.fields);
+            resolve();
+        });
+    }
+
     // shipType kako bi uzeli size, clickValue > vrednost koju dobijamo kada kliknemo da drag brod
     // Div koji predstavlja brod ima u zavisnosti od duzine isti broj divova unutra, u zavisnosti od
     // toga da li smo kliknuli na pocetak ili kraj drop se gleda drugacije, ako je klik skroz levo
@@ -63,6 +109,7 @@ export default class Gameboard {
             } else {
                 field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY - i);
             }
+            if (!field) return false;
             if (field.hasShip === true) {
                 return false;
             }
@@ -76,6 +123,7 @@ export default class Gameboard {
             } else {
                 field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY + i);
             }
+            if (!field) return false;
             if (field.hasShip === true) {
                 return false;
             }
@@ -97,13 +145,6 @@ export default class Gameboard {
         this.shipPlacementHistory.push(this.fields);
         return true;
     }
-
-    // shipPlaceRollback() {
-    //     Object.keys(this.fieldHistory).every((field) => {
-    //         this.fieldHistory[field].hasShip = false;
-    //         this.fieldHistory[field].shipType = null;
-    //     });
-    // }
 
     receiveAttack(cordX, cordY) {
         const field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY);
