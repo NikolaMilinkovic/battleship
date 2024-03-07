@@ -493,9 +493,8 @@ function buildGrid() {
                 const y = parseInt(event.target.getAttribute('y-cord'));
                 if (playerBoard.placeShip(shipType, clickValue, 'x', x, y) === true) {
                     event.target.appendChild(draggedEl);
-                    console.log(playerBoard.fields);
                     updateBoard();
-                    console.log(playerBoard.fields);
+                    console.log('checking for all ships placed');
                     setTimeout(checkForUnplacedShips, 500);
                 }
             }
@@ -516,6 +515,7 @@ function checkForUnplacedShips() {
 
         // Continues cabin dialogue
         setTimeout(() => {
+            console.log('After placing ships audio sequence queued');
             playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl);
         }, 500);
     }
