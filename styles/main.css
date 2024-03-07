@@ -622,3 +622,6 @@ html, body {
     background-color: #5C0C43;
     box-sizing: border-box;
 }
+.field-with-ship{
+    background-color: black !important;
+}

@@ -4,11 +4,12 @@ import {
     createDiv, createPara, createInput, appendChildren, createButton, paraImg,
 } from './elementBuilder.js';
 import Player from './player.js';
-import gameStart from './game.js';
+import { initPlayerBoard, gameStart } from './game.js';
 import { enablePara, disablePara } from './para.js';
 import {
     getVolumeSlider, getIcon, getAudioControls, getVolumeIcons,
 } from './audioControls.js';
+
 
 const { body } = document;
 const form = document.getElementById('form');
@@ -19,6 +20,7 @@ const inputName = document.getElementById('input-player');
 btnPlay.addEventListener('click', play);
 let draggedEl;
 let playerName;
+let playerBoard;
 
 // Prevents the form default behvaiour
 form.addEventListener('submit', preventDefault);
@@ -220,6 +222,7 @@ function planFleet() {
     fadeOutElements(parentEl)
         .then(() => {
             clearElChildren(parentEl);
+            playerBoard = initPlayerBoard(playerName);
             displayMap(parentEl);
             positionShips(parentEl);
         })
@@ -242,9 +245,13 @@ function randomizeFleet() {
 
 // Method for displaying map for ship placement
 function displayMap(parentEl) {
+    const pBoardContainer = document.createElement('div');
+    pBoardContainer.classList.add('player-board-container');
+    playerBoard.init();
     const grid = buildGrid();
-    parentEl.appendChild(grid);
-    grid.classList.add('cabin-map-display');
+    pBoardContainer.appendChild(grid);
+    parentEl.appendChild(pBoardContainer);
+    pBoardContainer.classList.add('cabin-map-display');
 }
 // Method for displaying drag & drop ships
 function positionShips(parentEl) {
@@ -296,6 +303,18 @@ function playAudioSequence(audioFiles, textFiles, parentEl) {
 
 
 // =============================[ DRAG AND DROP LOGIC ]=============================
+// placeShip(shipType, clickValue, orientation, cordX, cordY);
+
+let shipType = '';
+let clickValue = '';
+function setShipType(type) {
+    shipType = type;
+    console.log(`Type: ${shipType}`);
+}
+function setClickValue(value) {
+    clickValue = value;
+    console.log(`ClickValue: ${clickValue}`);
+}
 function createShip(size, type) {
     const ship = createDiv(['place-ship'], '');
     ship.setAttribute('draggable', 'true');
@@ -304,8 +323,8 @@ function createShip(size, type) {
         dataField.setAttribute('clickValue', i);
         dataField.setAttribute('shipType', type);
         dataField.addEventListener('mousedown', () => {
-            console.log(dataField.getAttribute('clickValue'));
-            console.log(dataField.getAttribute('shipType'));
+            setClickValue(dataField.getAttribute('clickValue'));
+            setShipType(dataField.getAttribute('shipType'));
         });
         ship.appendChild(dataField);
     }
@@ -388,30 +407,62 @@ function clearElChildren(parent) {
     }
 }
 // ==========================[\OTHER GENERAL METHODS]==========================
-
+// cordX: 0
+// cordY: 1
+// hasShip: false
+// isShot: false
+// shipType: null
 
 function buildGrid() {
     const board = createDiv([], 'player-board');
-    for (let y = 9; y >= 0; y--) {
-        for (let x = 0; x < 10; x++) {
-            const field = document.createElement('div');
-            field.classList.add('default-field');
-            field.setAttribute('x-cord', `${x}`);
-            field.setAttribute('y-cord', `${y}`);
 
-            field.addEventListener('dragover', (event) => {
-                event.preventDefault();
-            });
-            field.addEventListener('drop', (event) => {
-                event.preventDefault();
-                if (draggedEl) {
-                    event.target.appendChild(draggedEl);
-                }
-            });
-            board.appendChild(field);
+    const objList = playerBoard.fields;
+    console.log(objList);
+
+    objList.forEach((obj) => {
+        const field = document.createElement('div');
+        field.classList.add('default-field');
+        field.setAttribute('x-cord', `${obj.cordX}`);
+        field.setAttribute('y-cord', `${obj.cordY}`);
+        if (obj.hasShip) {
+            console.log('obj with ship found');
+            console.log('x-cord', `${obj.cordX}`);
+            console.log('y-cord', `${obj.cordY}`);
+            field.classList.add('field-with-ship');
         }
-    }
+        if (obj.isShot) field.classList.add('field-shot');
+        if (obj.shipType !== null) console.log('there is a ship here!');
+
+        field.addEventListener('dragover', (event) => {
+            event.preventDefault();
+        });
+        field.addEventListener('drop', (event) => {
+            event.preventDefault();
+            if (draggedEl) {
+                const x = parseInt(event.target.getAttribute('x-cord'));
+                const y = parseInt(event.target.getAttribute('y-cord'));
+                console.log(`value x: ${x}, valuey: ${y}`);
+                console.log(`ship type: ${shipType}`);
+                console.log(`click value: ${clickValue}`);
+                if (playerBoard.placeShip(shipType, clickValue, 'x', x, y) === true) {
+                    event.target.appendChild(draggedEl);
+                    updateBoard();
+                }
+            }
+        });
+        board.appendChild(field);
+    });
     return board;
+}
+
+function updateBoard() {
+    console.log('updating board');
+    const boardContainer = document.querySelector('.player-board-container');
+    clearElChildren(boardContainer);
+
+    const newBoard = buildGrid();
+    console.log(newBoard);
+    boardContainer.appendChild(newBoard);
 }
 
 

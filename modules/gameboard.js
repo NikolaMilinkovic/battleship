@@ -18,10 +18,12 @@ export default class Gameboard {
 
         this.shotField = [];
         this.shipPlacementFields = [];
+        this.shipPlacementHistory = [];
     }
 
     // Innitializes gameboard fields as objects and pushes them to this.fields arr
     init() {
+        this.fields = [];
         let obj = {};
         for (let x = 0; x < 10; x++) {
             for (let y = 0; y < 10; y++) {
@@ -56,26 +58,26 @@ export default class Gameboard {
         const afterClick = size - clickValue; // Znaci tipa 5 - 2 = 3 elementa, ukljucujuci i click el x+0, x+1, x+2
         for (let i = beforeClick; i > 0; i--) {
             let field;
-            if (orientation === 'x') {
+            if (orientation === 'y') {
                 field = this.fields.find((obj) => obj.cordX === cordX - i && obj.cordY === cordY);
             } else {
                 field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY - i);
             }
             if (field.hasShip === true) {
-                return 'You can not overlap ships!';
+                return false;
             }
 
             this.shipPlacementFields.push(field);
         }
         for (let i = 0; i < afterClick; i++) {
             let field;
-            if (orientation === 'x') {
+            if (orientation === 'y') {
                 field = this.fields.find((obj) => obj.cordX === cordX + i && obj.cordY === cordY);
             } else {
                 field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY + i);
             }
             if (field.hasShip === true) {
-                return 'You can not overlap ships!';
+                return false;
             }
 
             this.shipPlacementFields.push(field);
@@ -84,8 +86,15 @@ export default class Gameboard {
         this.shipPlacementFields.forEach((field) => {
             field.hasShip = true;
             field.shipType = shipType;
+
+            const updateField = this.fields.find((obj) => obj.cordX === field.cordX && obj.cordY === field.cordY);
+            if (updateField) {
+                updateField.hasShip = true;
+                updateField.shipType = shipType;
+            }
         });
 
+        this.shipPlacementHistory.push(this.fields);
         return true;
     }
 
