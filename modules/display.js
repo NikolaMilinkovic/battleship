@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import {
     createDiv, createPara, createInput, appendChildren, createButton, paraImg,
 } from './elementBuilder.js';
@@ -14,7 +15,7 @@ const btnPlay = document.getElementById('btn-play');
 const inputName = document.getElementById('input-player');
 btnPlay.addEventListener('click', play);
 
-
+let draggedEl;
 let playerName;
 
 // Prevents the form default behvaiour
@@ -24,6 +25,19 @@ function preventDefault(event) {
 }
 // End of prevent default code
 
+// Night ambience sound
+const nightAmbience = new Audio('./audio/night-ambience.mp3');
+nightAmbience.loop = true;
+nightAmbience.volume = 0.2;
+nightAmbience.addEventListener('loadedmetadata', () => {
+    playAmbience();
+});
+function playAmbience() {
+    nightAmbience.play();
+}
+function pauseAmbience() {
+    nightAmbience.pause();
+}
 
 // Welcome screen logic & transition into game
 function play(event) {
@@ -32,6 +46,7 @@ function play(event) {
         if (!checkNameInput()) return;
         disablePara();
         transitionPage();
+        setTimeout(pauseAmbience, 2600);
     }
 }
 
@@ -129,11 +144,87 @@ const positionFleetBtns = [
     },
 ];
 
+// Player fleet organization path
 function planFleet() {
-    console.log('running planFleet');
+    const parentEl = document.getElementById('dialogue-container');
+    fadeOutElements(parentEl)
+        .then(() => {
+            clearElChildren(parentEl);
+            displayMap(parentEl);
+            positionShips(parentEl);
+        })
+        .catch((error) => {
+            console.error('Error during dialogue box removal:', error);
+        });
 }
+
+// Randomize path
 function randomizeFleet() {
-    console.log('running planFleet');
+    const parentEl = document.getElementById('dialogue-container');
+    fadeOutElements(parentEl)
+        .then(() => {
+            clearElChildren(parentEl);
+        })
+        .catch((error) => {
+            console.error('Error during dialogue box removal:', error);
+        });
+}
+
+// Method for displaying map for ship placement
+function displayMap(parentEl) {
+    const grid = buildGrid();
+    parentEl.appendChild(grid);
+    grid.classList.add('cabin-map-display');
+}
+// Method for displaying drag & drop ships
+function positionShips(parentEl) {
+    const container = createDiv([], 'place-ship-container');
+    const carrier = createShip(5, 'Carrier');
+    const battleship = createShip(4, 'Battleship');
+    const cruiser = createShip(3, 'Cruiser');
+    const submarine = createShip(3, 'Submarine');
+    const destroyer = createShip(2, 'Destroyer');
+    appendChildren(container, [carrier, battleship, cruiser, submarine, destroyer]);
+    parentEl.appendChild(container);
+    container.classList.add('cabin-map-display');
+}
+
+// =======================[ DRAG AND DROP LOGIC ]=======================
+function createShip(size, type) {
+    const ship = createDiv(['place-ship'], '');
+    ship.setAttribute('draggable', 'true');
+    for (let i = 0; i < size; i++) {
+        const dataField = createDiv(['place-ship-data-field'], '');
+        dataField.setAttribute('clickValue', i);
+        dataField.setAttribute('shipType', type);
+        dataField.addEventListener('mousedown', () => {
+            console.log(dataField.getAttribute('clickValue'));
+            console.log(dataField.getAttribute('shipType'));
+        });
+        ship.appendChild(dataField);
+    }
+    ship.addEventListener('dragstart', getDragEl);
+    ship.addEventListener('dragend', dropEl);
+    return ship;
+}
+
+function getDragEl() {
+    draggedEl = event.target;
+}
+function dropEl() {
+    draggedEl = null;
+}
+
+
+// Fades out all children elements and display:none them
+function fadeOutElements(parentEl) {
+    return new Promise((resolve, reject) => {
+        const children = parentEl.children;
+        for (let i = 0; i < children.length; i++) {
+            children[i].classList.add('fade-out');
+        }
+        setTimeout(() => resolve(), 1000);
+    });
 }
 
 // Method for handling cabin dialogue
@@ -210,26 +301,41 @@ function playAudioSequence(audioFiles, textFiles, parentEl) {
     });
 }
 
-
-// Welcome screen logic & transition into game
-function getPlayer() {
-    const inputContainer = createDiv('', 'input-container');
-    const header = createPara('Enter your name', '', 'input-header', 'para');
-    const input = createInput('Cpt. Jack Sparrow?', '', 'input-player');
-    const btn = createButton('Play', '', 'btn-play');
-    btn.addEventListener('click', btnPlay);
-    appendChildren(inputContainer, [header, input, btn]);
-    appendChildren(playerInputContainer, [inputContainer]);
-    body.appendChild(playerInputContainer);
-}
-
-// getPlayer();
-
 function clearDisplay() {
     while (paraContainer.firstChild) {
         paraContainer.firstChild.remove();
     }
 }
+function clearElChildren(parent) {
+    while (parent.firstChild) {
+        parent.firstChild.remove();
+    }
+}
+
+function buildGrid() {
+    const board = createDiv([], 'player-board');
+    for (let y = 9; y >= 0; y--) {
+        for (let x = 0; x < 10; x++) {
+            const field = document.createElement('div');
+            field.classList.add('default-field');
+            field.setAttribute('x-cord', `${x}`);
+            field.setAttribute('y-cord', `${y}`);
+
+            field.addEventListener('dragover', (event) => {
+                event.preventDefault();
+            });
+            field.addEventListener('drop', (event) => {
+                event.preventDefault();
+                if (draggedEl) {
+                    event.target.appendChild(draggedEl);
+                }
+            });
+            board.appendChild(field);
+        }
+    }
+    return board;
+}
+
 
 function gameDisplay() {
     const content = createDiv('', 'content');
