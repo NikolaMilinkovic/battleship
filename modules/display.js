@@ -21,6 +21,7 @@ btnPlay.addEventListener('click', play);
 let draggedEl;
 let playerName;
 let playerBoard;
+let playerBoardReference;
 
 // Prevents the form default behvaiour
 form.addEventListener('submit', preventDefault);
@@ -215,6 +216,15 @@ const positionFleetBtns = [
         clickMethod: randomizeFleet,
     },
 ];
+const shipsPositionedText = [
+    {
+        text: 'Great, that should do it, with this brilliant plan those bastards won\'t know what hit em! \nI shall inform each vessel of their position. ',
+        character: 'Jolly Roger Jack',
+    },
+];
+const shipsPositionedDialogue = [
+    './audio/ships-placed-dialogue.mp3',
+];
 
 // Player fleet organization path
 function planFleet() {
@@ -270,13 +280,13 @@ function positionShips(parentEl) {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    playAudioSequence(greetDialogues, greetText, parentEl)
-        .then(() => {
-            getDialogueBtns(parentEl, positionFleetBtns);
-        })
-        .catch((error) => {
-            console.error('Error during audio playback:', error);
-        });
+    // playAudioSequence(greetDialogues, greetText, parentEl)
+    //     .then(() => {
+    getDialogueBtns(parentEl, positionFleetBtns);
+    // })
+    // .catch((error) => {
+    //     console.error('Error during audio playback:', error);
+    // });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
@@ -319,7 +329,8 @@ function createShip(size, type) {
     const ship = createDiv(['place-ship'], '');
     ship.setAttribute('draggable', 'true');
     for (let i = 0; i < size; i++) {
-        const dataField = createDiv(['place-ship-data-field'], '');
+        const shipImg = getShipTypeImg(type);
+        const dataField = createDiv(['place-ship-data-field', `${shipImg}`], '');
         dataField.setAttribute('clickValue', i);
         dataField.setAttribute('shipType', type);
         dataField.addEventListener('mousedown', () => {
@@ -331,6 +342,23 @@ function createShip(size, type) {
     ship.addEventListener('dragstart', getDragEl);
     ship.addEventListener('dragend', dropEl);
     return ship;
+}
+function getShipTypeImg(type) {
+    if (type === 'Carrier') {
+        return 'carrier';
+    }
+    if (type === 'Battleship') {
+        return 'battleship';
+    }
+    if (type === 'Cruiser') {
+        return 'cruiser';
+    }
+    if (type === 'Submarine') {
+        return 'submarine';
+    }
+    if (type === 'Destroyer') {
+        return 'destroyer';
+    }
 }
 
 function getDragEl() {
@@ -417,7 +445,6 @@ function buildGrid() {
     const board = createDiv([], 'player-board');
 
     const objList = playerBoard.fields;
-    console.log(objList);
 
     objList.forEach((obj) => {
         const field = document.createElement('div');
@@ -425,10 +452,9 @@ function buildGrid() {
         field.setAttribute('x-cord', `${obj.cordX}`);
         field.setAttribute('y-cord', `${obj.cordY}`);
         if (obj.hasShip) {
-            console.log('obj with ship found');
-            console.log('x-cord', `${obj.cordX}`);
-            console.log('y-cord', `${obj.cordY}`);
+            const type = obj.shipType;
             field.classList.add('field-with-ship');
+            field.classList.add(`${getShipTypeImg(type)}`);
         }
         if (obj.isShot) field.classList.add('field-shot');
         if (obj.shipType !== null) console.log('there is a ship here!');
@@ -441,28 +467,41 @@ function buildGrid() {
             if (draggedEl) {
                 const x = parseInt(event.target.getAttribute('x-cord'));
                 const y = parseInt(event.target.getAttribute('y-cord'));
-                console.log(`value x: ${x}, valuey: ${y}`);
-                console.log(`ship type: ${shipType}`);
-                console.log(`click value: ${clickValue}`);
                 if (playerBoard.placeShip(shipType, clickValue, 'x', x, y) === true) {
                     event.target.appendChild(draggedEl);
                     updateBoard();
                 }
+                setTimeout(checkForUnplacedShips, 1500);
             }
         });
         board.appendChild(field);
     });
     return board;
 }
+function checkForUnplacedShips() {
+    const shipContainer = document.getElementById('place-ship-container');
+    if (shipContainer.childNodes.length === 0) {
+        const parentEl = document.getElementById('dialogue-container');
+        const boardContainer = document.querySelector('.player-board-container');
+        boardContainer.classList.remove('cabin-map-display');
+        shipContainer.classList.remove('cabin-map-display');
+        boardContainer.classList.add('cabin-map-remove');
+        shipContainer.classList.add('cabin-map-remove');
+
+        // Continues cabin dialogue
+        setTimeout(() => {
+            playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl);
+        }, 500);
+    }
+}
 
 function updateBoard() {
-    console.log('updating board');
     const boardContainer = document.querySelector('.player-board-container');
     clearElChildren(boardContainer);
 
     const newBoard = buildGrid();
-    console.log(newBoard);
     boardContainer.appendChild(newBoard);
+    playerBoardReference = newBoard;
 }
 
 
