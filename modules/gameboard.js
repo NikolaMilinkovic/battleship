@@ -97,9 +97,9 @@ export default class Gameboard {
         let border;
         this.shipPlacementFields = [];
         const { size } = this.ships[shipType];
-        if (orientation === 'x') border = cordX;
-        if (orientation === 'y') border = cordY;
-        if (clickValue > border) return console.log(false);
+        if (orientation === 'x') border = cordY;
+        if (orientation === 'y') border = cordX;
+        if (clickValue > border) return console.log(`Border is: ${border} and click value is: ${clickValue}`);
         const beforeClick = clickValue; // < znaci da ukoliko je 2, imamo levo dva elementa, x-1 i x-2
         const afterClick = size - clickValue; // Znaci tipa 5 - 2 = 3 elementa, ukljucujuci i click el x+0, x+1, x+2
         for (let i = beforeClick; i > 0; i--) {

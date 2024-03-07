@@ -311,13 +311,13 @@ function positionShips(parentEl) {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    playAudioSequence(greetDialogues, greetText, parentEl)
-        .then(() => {
-            getDialogueBtns(parentEl, positionFleetBtns);
-        })
-        .catch((error) => {
-            console.error('Error during audio playback:', error);
-        });
+    // playAudioSequence(greetDialogues, greetText, parentEl)
+    //     .then(() => {
+    getDialogueBtns(parentEl, positionFleetBtns);
+    // })
+    // .catch((error) => {
+    //     console.error('Error during audio playback:', error);
+    // });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
@@ -493,7 +493,9 @@ function buildGrid() {
                 const y = parseInt(event.target.getAttribute('y-cord'));
                 if (playerBoard.placeShip(shipType, clickValue, 'x', x, y) === true) {
                     event.target.appendChild(draggedEl);
+                    console.log(playerBoard.fields);
                     updateBoard();
+                    console.log(playerBoard.fields);
                     setTimeout(checkForUnplacedShips, 1500);
                 }
             }
