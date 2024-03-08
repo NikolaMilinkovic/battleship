@@ -22,6 +22,7 @@ let draggedEl;
 let playerName;
 let playerBoard;
 let playerBoardReference;
+let axis = 'x';
 
 // Prevents the form default behvaiour
 form.addEventListener('submit', preventDefault);
@@ -302,9 +303,33 @@ function positionShips(parentEl) {
     const cruiser = createShip(3, 'Cruiser');
     const submarine = createShip(3, 'Submarine');
     const destroyer = createShip(2, 'Destroyer');
-    appendChildren(container, [carrier, battleship, cruiser, submarine, destroyer]);
+    const axisBtn = getAxisControl();
+    appendChildren(container, [carrier, battleship, cruiser, submarine, destroyer, axisBtn]);
     parentEl.appendChild(container);
     container.classList.add('cabin-map-display');
+}
+function getAxisControl() {
+    const btn = createButton('Axis: X', ['cabin-btn'], 'btn-toggle-axis');
+    btn.addEventListener('click', toggleAxis);
+    return btn;
+}
+function toggleAxis() {
+    const btn = document.getElementById('btn-toggle-axis');
+    if (axis === 'x') {
+        btn.innerHTML = 'Axis: Y';
+        const ships = document.querySelectorAll('.place-ship');
+        ships.forEach((ship) => {
+            ship.classList.add('place-ship-y');
+        });
+        axis = 'y';
+    } else {
+        const ships = document.querySelectorAll('.place-ship');
+        ships.forEach((ship) => {
+            ship.classList.remove('place-ship-y');
+        });
+        btn.innerHTML = 'Axis: X';
+        axis = 'x';
+    }
 }
 
 // Method for handling cabin dialogue,
@@ -491,7 +516,7 @@ function buildGrid() {
             if (draggedEl) {
                 const x = parseInt(event.target.getAttribute('x-cord'));
                 const y = parseInt(event.target.getAttribute('y-cord'));
-                if (playerBoard.placeShip(shipType, clickValue, 'x', x, y) === true) {
+                if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
                     event.target.appendChild(draggedEl);
                     updateBoard();
                     setTimeout(checkForUnplacedShips, 500);
@@ -504,7 +529,7 @@ function buildGrid() {
 }
 function checkForUnplacedShips() {
     const shipContainer = document.getElementById('place-ship-container');
-    if (shipContainer.childNodes.length === 0) {
+    if (shipContainer.childNodes.length === 1) {
         const parentEl = document.getElementById('dialogue-container');
         const boardContainer = document.querySelector('.player-board-container');
         boardContainer.classList.remove('cabin-map-display');

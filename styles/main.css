@@ -624,11 +624,22 @@ html, body {
     border: 2px solid #560F15;
     box-sizing: border-box;
     gap: 1rem;
+    position: relative;
+}
+#btn-toggle-axis{
+    position: absolute;
+    left: 520px;
+    top: 0px;
+    padding: 1rem;
 }
 .place-ship{
     display: flex;
-    max-width: fit-content;
-    max-height: fit-content;
+    max-width: min-content;
+    max-height: min-content;
+}
+.place-ship-y{
+    flex-direction: column;
+    margin-bottom: auto;
 }
 .place-ship-data-field{
     width: 50px;
