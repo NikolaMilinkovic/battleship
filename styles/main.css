@@ -84,10 +84,10 @@ table {
 
 @keyframes ship-travails {
     from{
-        transform: translate(-100%);
+        transform: translate(-70%);
     }
     to{
-        transform: translate(150%);
+        transform: translate(180%);
     }
 }
 
