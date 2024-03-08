@@ -18,3 +18,6 @@ export function gameStart(playerName) {
     const computerBoard = new Gameboard();
 }
 
+export function test() {
+    const kek = 0;
+}
