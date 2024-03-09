@@ -616,8 +616,9 @@ img#vector-11{
 /* \SHIP CABIN */
 
 
-/* PLAYER BOARD AND SHIP PLACEMENT */
-#player-board{
+/* PLAYER / AI BOARD AND SHIP PLACEMENT */
+#player-board,
+#ai-board{
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     background-image: url('../img/map-background.jpg');
@@ -630,6 +631,9 @@ img#vector-11{
     height: 50px;
     border: 2px solid #560F15;
     box-sizing: border-box;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 .cabin-map-display{
     animation: show-dialogue-box 700ms;
@@ -673,6 +677,21 @@ img#vector-11{
     background-size: cover;
     background-position: center;
     box-sizing: border-box;
+}
+.field-hit{
+    z-index: 2;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-image: url('../img/x-mark.png');
+}
+.field-miss{
+    /* z-index: 2;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-image: url('../img/x-mark.png'); */
+    background-color: #7B3825;
 }
 .field-with-ship{
     background-repeat: no-repeat;
@@ -839,3 +858,45 @@ img#vector-11{
         transform: translate(-100vw, 0vw);
     }
 }
+
+#game-content{
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+    gap: 4rem;
+    /* padding: 10% 20%; */
+    width: 100%;
+    height: 100%;
+}
+.gameboard-label{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 16px;
+    font-size: 22px;
+    font-weight: bold;
+    background-image: linear-gradient(to right, #560F15 0%, #7B3825  51%, #300509  100%);
+    border: 2px solid #560F15;
+    box-sizing: border-box;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

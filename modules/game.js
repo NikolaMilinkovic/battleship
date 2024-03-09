@@ -3,11 +3,19 @@ import Gameboard from './gameboard.js';
 import Player from './player.js';
 
 
-// OVo ne treba da bude klasa! Promeni
+// Method for innitializing player board
 export function initPlayerBoard(playerName) {
     const playerBoard = new Gameboard();
     playerBoard.init();
     return playerBoard;
+}
+
+// MEthod for innitializing AI board
+export function initAiBoard() {
+    const aiGameboard = new Gameboard();
+    aiGameboard.init();
+    aiGameboard.placeShipsRandomly();
+    return aiGameboard;
 }
 
 export function gameStart(playerName) {
@@ -16,8 +24,4 @@ export function gameStart(playerName) {
 
 
     const computerBoard = new Gameboard();
-}
-
-export function test() {
-    const kek = 0;
 }

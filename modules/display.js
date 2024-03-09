@@ -5,7 +5,7 @@ import {
     createDiv, createPara, createInput, appendChildren, createButton, paraImg, createImg,
 } from './elementBuilder.js';
 import Player from './player.js';
-import { initPlayerBoard, gameStart } from './game.js';
+import { initPlayerBoard, gameStart, initAiBoard } from './game.js';
 import { enablePara, disablePara } from './para.js';
 import {
     getVolumeSlider, getIcon, getAudioControls, getVolumeIcons,
@@ -25,6 +25,10 @@ let playerBoard;
 let playerBoardReference;
 let axis = 'x';
 let hasBattleStarted = false;
+// AI REFERENCES
+const aiGameboard = initAiBoard();
+let aiBoardReference;
+// \AI REFERENCES
 const battleAmbience = new Audio('./audio/pirate-ship-battle-ambience.mp3');
 battleAmbience.volume = 0.15;
 battleAmbience.loop = true;
@@ -128,6 +132,7 @@ function play(event) {
     if (event.type === 'click' || event.type === 'Enter') {
         preventDefault(event);
         if (!checkNameInput()) return;
+        playerName = inputName.value;
         btnPlay.disabled = true;
         disablePara();
         transitionPage();
@@ -292,10 +297,10 @@ function randomizeFleet() {
             return getRandomizedMap(parentEl);
         })
         .then(() => {
-            playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
-            parentEl.appendChild(playerBoardReference);
-            playerBoardReference.classList.add('cabin-map-display');
-            toShipTransition(8000);
+            // playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
+            // parentEl.appendChild(playerBoardReference);
+            // playerBoardReference.classList.add('cabin-map-display');
+            toShipTransition(8); // Needs to be 8000
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
@@ -394,13 +399,13 @@ function toggleAxis() {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    playAudioSequence(greetDialogues, greetText, parentEl)
-        .then(() => {
-            getDialogueBtns(parentEl, positionFleetBtns);
-        })
-        .catch((error) => {
-            console.error('Error during audio playback:', error);
-        });
+    // playAudioSequence(greetDialogues, greetText, parentEl)
+    //     .then(() => {
+    getDialogueBtns(parentEl, positionFleetBtns);
+    // })
+    // .catch((error) => {
+    //     console.error('Error during audio playback:', error);
+    // });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
@@ -576,7 +581,7 @@ function buildGrid() {
                 const y = parseInt(event.target.getAttribute('y-cord'));
                 if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
                     event.target.appendChild(draggedEl);
-                    updateBoard();
+                    updateBoard(document.querySelectorAll('.player-board-container'));
                     setTimeout(checkForUnplacedShips, 500);
                 }
             }
@@ -604,15 +609,14 @@ function checkForUnplacedShips() {
         }, 750);
     }
 }
-
-function updateBoard() {
-    const boardContainer = document.querySelector('.player-board-container');
+function updateBoard(boardContainer) {
     clearElChildren(boardContainer);
 
     const newBoard = buildGrid();
     boardContainer.appendChild(newBoard);
     playerBoardReference = newBoard;
 }
+
 
 // Ship vector objects used for appending them to vector parent
 const shipDeckVectorEls = [
@@ -693,13 +697,13 @@ function toShipTransition(timer) {
             })
             .then(() => {
                 appendVectors(paraContainer, shipDeckVectorEls);
-                return new Promise((innerResolve, innerReject) => {
-                    setTimeout(() => {
-                        playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
-                            innerResolve();
-                        });
-                    }, 800);
-                });
+                // return new Promise((innerResolve, innerReject) => {
+                //     setTimeout(() => {
+                //         playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
+                //             innerResolve();
+                //         });
+                //     }, 800);
+                // });
             })
             .then(() => new Promise((innerResolve, innerReject) => {
                 setTimeout(() => {
@@ -718,13 +722,112 @@ function toShipTransition(timer) {
             .then(() => new Promise((innerResolve, innerReject) => {
                 setTimeout(() => {
                     clearElChildren(dialogueContainer);
+                    setTimeout(() => {
+                        innerResolve();
+                    }, 100);
                 }, 1000);
+            }))
+            .then(() => new Promise((innerResolve, innerReject) => {
+                const playerBoard = buildGrid();
+                gameDisplay(playerName);
+                displayAiMap();
             }))
             .catch((error) => {
                 console.error('Error during dialogue box removal:', error);
             });
     }, 500);
 }
+
+// Displays the boards
+function gameDisplay(playerName, playerBoard, aiName, aiBoard) {
+    const content = createDiv('', 'game-content');
+
+    const playerContainer = createDiv('', 'player-container');
+    const playerLabel = createPara(`Captain ${playerName} fleet`, ['gameboard-label'], '', 'h2');
+    const playerShips = createDiv('', 'ships-player');
+    const playerGrid = createDiv('', 'player-gameboard');
+    playerGrid.appendChild(playerBoardReference);
+    appendChildren(playerContainer, [playerLabel, playerShips, playerGrid]);
+
+
+    const aiContainer = createDiv('', 'ai-container');
+    const aiLabel = createPara('Captain Blackbeard Bones', ['gameboard-label'], '', 'h2');
+    const aiShips = createDiv('', 'ships-ai');
+    const aiGrid = createDiv('', 'ai-gameboard');
+    aiGrid.classList.add('ai-board-container');
+    appendChildren(aiContainer, [aiLabel, aiShips, aiGrid]);
+
+    appendChildren(content, [playerContainer, aiContainer]);
+    body.appendChild(content);
+}
+function displayAiMap() {
+    const aiGrid = document.getElementById('ai-gameboard');
+    aiBoardReference = buildAiGrid(aiGameboard);
+    aiBoardReference.classList.add('cabin-map-display');
+    aiGrid.appendChild(aiBoardReference);
+}
+
+
+function buildAiGrid(userGameboard) {
+    const board = createDiv([], 'ai-board');
+
+    const objList = userGameboard.fields;
+
+    objList.forEach((obj) => {
+        const field = document.createElement('div');
+        field.classList.add('default-field');
+        field.setAttribute('x-cord', `${obj.cordX}`);
+        field.setAttribute('y-cord', `${obj.cordY}`);
+        // if (obj.hasShip) {
+        //     const type = obj.shipType;
+        //     field.classList.add('field-with-ship');
+        //     field.classList.add(`${getShipTypeImg(type)}`);
+        // }
+        // if (obj.isShot) field.classList.add('field-hit');
+        if (obj.isShot === true) {
+            if (obj.hasShip) {
+                field.classList.add('field-hit');
+            } else {
+                field.classList.add('field-miss');
+            }
+        }
+        field.addEventListener('click', (event) => {
+            const x = parseInt(event.target.getAttribute('x-cord'));
+            const y = parseInt(event.target.getAttribute('y-cord'));
+            if (field.classList.contains('field-miss') || field.classList.contains('field-hit')) {
+                console.log('FIELD PLAYED ALREADY');
+            } else {
+                console.log('FIELD CAN BE PLAYED, PLAYING NOW.');
+                objList.forEach((obj) => {
+                    if (obj.cordX === x && obj.cordY === y) {
+                        obj.isShot = true;
+                        if (obj.hasShip) {
+                            field.classList.add('field-hit');
+                        } else {
+                            field.classList.add('field-miss');
+                        }
+                    }
+                });
+                updateAiBoard(document.getElementById('ai-gameboard'));
+            }
+        });
+        board.appendChild(field);
+    });
+    return board;
+}
+function updateAiBoard(boardContainer) {
+    clearElChildren(boardContainer);
+
+    const newBoard = buildAiGrid(aiGameboard);
+    boardContainer.appendChild(newBoard);
+    aiBoardReference = newBoard;
+}
+
+function getAI() {
+
+}
+
+
 function removeDialogueBox(parentEl) {
     const children = parentEl.children;
     for (let i = 0; i < children.length; i++) {
@@ -749,24 +852,3 @@ function appendVectors(parent, vectors) {
         parent.appendChild(img);
     });
 }
-
-function gameDisplay() {
-    const content = createDiv('', 'content');
-    const playerContainer = createDiv('', 'player-container');
-    const playerLabel = createPara(`${playerName}`, '', '', 'h2');
-    const playerShips = createDiv('', 'ships-player');
-    const playerGrid = createDiv('', 'grid-player');
-    appendChildren(playerContainer, [playerLabel, playerShips, playerGrid]);
-
-
-    const aiContainer = createDiv('', 'ai-container');
-    const aiLabel = createPara('Admiral Thorne Darkwater', '', '', 'h2');
-    const aiShips = createDiv('', 'ships-ai');
-    const aiGrid = createDiv('', 'grid-ai');
-    appendChildren(aiContainer, [aiLabel, aiShips, aiGrid]);
-
-    appendChildren(content, [playerContainer, aiContainer]);
-    body.appendChild(content);
-}
-
-
