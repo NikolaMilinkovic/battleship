@@ -1,7 +1,8 @@
+/* eslint-disable max-len */
 /* eslint-disable operator-linebreak */
 /* eslint-disable prefer-destructuring */
 import {
-    createDiv, createPara, createInput, appendChildren, createButton, paraImg,
+    createDiv, createPara, createInput, appendChildren, createButton, paraImg, createImg,
 } from './elementBuilder.js';
 import Player from './player.js';
 import { initPlayerBoard, gameStart } from './game.js';
@@ -23,6 +24,10 @@ let playerName;
 let playerBoard;
 let playerBoardReference;
 let axis = 'x';
+let hasBattleStarted = false;
+const battleAmbience = new Audio('./audio/pirate-ship-battle-ambience.mp3');
+battleAmbience.volume = 0.15;
+battleAmbience.loop = true;
 
 // Prevents the form default behvaiour
 form.addEventListener('submit', preventDefault);
@@ -39,6 +44,7 @@ audio.volume = 0.5;
 let cachedAudioVolume = audio.volume;
 let isAudioRunning = false;
 let inCabin = false;
+const backgroundAudioRunning = false;
 const volumeIcons = getVolumeIcons();
 const icon = getIcon();
 const slider = getVolumeSlider();
@@ -67,6 +73,15 @@ icon.addEventListener('click', () => {
         icon.src.toString().includes(volumeIcons.volXWhite.slice(1))) {
         audio.volume = cachedAudioVolume;
         slider.value = cachedAudioVolume * 100;
+        if (hasBattleStarted) {
+            if (battleAmbience.paused) {
+                battleAmbience.play();
+                battleAmbience.volume = (slider.value / 100) / 4;
+            } else {
+                battleAmbience.volume = (slider.value / 100) / 4;
+            }
+        }
+
         if (audio.volume >= 0.5) icon.src = volumeIcons.volHighWhite;
         if (audio.volume > 0 && audio.volume < 0.5) icon.src = volumeIcons.volLowWhite;
         if (isAudioRunning === false && inCabin === false) {
@@ -78,6 +93,7 @@ icon.addEventListener('click', () => {
         cachedAudioVolume = audio.volume;
         audio.volume = 0;
         slider.value = 0;
+        battleAmbience.volume = 0;
         setVol(audio);
     }
 });
@@ -111,8 +127,8 @@ body.appendChild(audioControls);
 function play(event) {
     if (event.type === 'click' || event.type === 'Enter') {
         preventDefault(event);
-        btnPlay.disabled = true;
         if (!checkNameInput()) return;
+        btnPlay.disabled = true;
         disablePara();
         transitionPage();
         pauseAudio(audio);
@@ -236,6 +252,20 @@ const shipsRandomizedText = [
 const shipsRandomizedAudio = [
     './audio/ship-placed-random-dialogue.mp3',
 ];
+const battleStartText = [
+    {
+        text: 'Captain! The enemy has boarded our ship! \nI will hold them off for as long as I can while you navigate our cannons to hit their main fleet. If we can sink those ships the tide of this battle will turn in our favour!',
+        character: 'Jolly Roger Jack',
+    },
+    {
+        text: 'Take control of the battle by marking the firing positions on the map. \nGood luck captain!',
+        character: 'Jolly Roger Jack',
+    },
+];
+const battleStartAudio = [
+    './audio/pirate-battle-1.mp3',
+    './audio/pirate-battle-2.mp3',
+];
 
 // Player fleet organization path
 function planFleet() {
@@ -259,17 +289,41 @@ function randomizeFleet() {
         .then(() => {
             clearElChildren(parentEl);
             playerBoard = initPlayerBoard(playerName);
-            getRandomizedMap(parentEl);
+            return getRandomizedMap(parentEl);
         })
         .then(() => {
             playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
             parentEl.appendChild(playerBoardReference);
             playerBoardReference.classList.add('cabin-map-display');
+            toShipTransition(8000);
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
         });
 }
+
+function transitionToShip(timer) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const div = document.createElement('div');
+            div.setAttribute('id', 'to-ship-transition-screen');
+            div.classList.add('fade-to-black');
+            body.appendChild(div);
+
+            setTimeout(() => {
+                const text = document.createElement('p');
+                text.setAttribute('id', 'following-day-text');
+                text.innerHTML = 'The following day...';
+                text.classList.add('zoom-fade-in-out');
+                div.appendChild(text);
+                setTimeout(() => {
+                    resolve(div);
+                }, 2500);
+            }, 2500);
+        }, timer);
+    });
+}
+
 
 // Method for displaying map for ship placement
 function displayMap(parentEl) {
@@ -282,18 +336,22 @@ function displayMap(parentEl) {
     pBoardContainer.classList.add('cabin-map-display');
 }
 function getRandomizedMap(parentEl) {
-    const pBoardContainer = document.createElement('div');
-    pBoardContainer.classList.add('player-board-container');
-    playerBoard.init();
-    return playerBoard.placeShipsRandomly()
-        .then(() => {
-            const grid = buildGrid();
-            pBoardContainer.appendChild(grid);
-            playerBoardReference = pBoardContainer;
-        })
-        .catch((error) => {
-            console.error('Error during dialogue box removal:', error);
-        });
+    return new Promise((resolve, reject) => {
+        const pBoardContainer = document.createElement('div');
+        pBoardContainer.classList.add('player-board-container');
+        playerBoard.init();
+        return playerBoard.placeShipsRandomly()
+            .then(() => {
+                const grid = buildGrid();
+                pBoardContainer.appendChild(grid);
+                playerBoardReference = pBoardContainer;
+                resolve(); // Resolve the promise once everything is done
+            })
+            .catch((error) => {
+                console.error('Error during dialogue box removal:', error);
+                reject(error); // Reject the promise if an error occurs
+            });
+    });
 }
 // Method for displaying drag & drop ships
 function positionShips(parentEl) {
@@ -539,8 +597,11 @@ function checkForUnplacedShips() {
 
         // Continues cabin dialogue
         setTimeout(() => {
-            playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl);
-        }, 500);
+            playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
+                .then(() => {
+                    toShipTransition(200);
+                });
+        }, 750);
     }
 }
 
@@ -553,6 +614,140 @@ function updateBoard() {
     playerBoardReference = newBoard;
 }
 
+// Ship vector objects used for appending them to vector parent
+const shipDeckVectorEls = [
+    {
+        id: 'vector-1',
+        class: ['vector'],
+        src: './img/ship-deck/sky.svg',
+    },
+    {
+        id: 'vector-7',
+        class: ['vector', 'move-cloud-2'],
+        src: './img/ship-deck/cloud-2.svg',
+    },
+    {
+        id: 'vector-4',
+        class: ['vector', 'ship-sailing-3'],
+        src: './img/ship-deck/ship-white-damaged-small.svg',
+    },
+    {
+        id: 'vector-3',
+        class: ['vector', 'ship-sailing-2'],
+        src: './img/ship-deck/ship-damaged-small.svg',
+    },
+    {
+        id: 'vector-2',
+        class: ['vector', 'ship-sailing-1'],
+        src: './img/ship-deck/ship-damaged.svg',
+    },
+    {
+        id: 'vector-5',
+        class: ['vector'],
+        src: './img/ship-deck/water.svg',
+    },
+    {
+        id: 'vector-6',
+        class: ['vector', 'move-cloud-1'],
+        src: './img/ship-deck/cloud-1.svg',
+    },
+    {
+        id: 'vector-8',
+        class: ['vector', 'move-cloud-cluster'],
+        src: './img/ship-deck/cloud-cluster.svg',
+    },
+    {
+        id: 'vector-9',
+        class: ['vector', 'move-deck'],
+        src: './img/ship-deck/deck.svg',
+    },
+    {
+        id: 'vector-10',
+        class: ['vector', 'move-deck'],
+        src: './img/ship-deck/cannonball-right.svg',
+    },
+    {
+        id: 'vector-11',
+        class: ['vector', 'move-deck', 'pirate-idle'],
+        src: './img/ship-deck/pirate-light.svg',
+    },
+
+];
+
+
+function toShipTransition(timer) {
+    const dialogueContainer = document.getElementById('dialogue-container');
+    setTimeout(() => {
+        transitionToShip(timer)
+            .then((div) => {
+                removePara();
+                clearElChildren(dialogueContainer);
+                setTimeout(() => {
+                    div.classList.add('fade-out-2s');
+
+                    battleAmbience.volume = (slider.value / 100) / 3;
+                    battleAmbience.play();
+                    hasBattleStarted = true;
+                    resolve();
+                }, 300);
+            })
+            .then(() => {
+                appendVectors(paraContainer, shipDeckVectorEls);
+                return new Promise((innerResolve, innerReject) => {
+                    setTimeout(() => {
+                        playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
+                            innerResolve();
+                        });
+                    }, 800);
+                });
+            })
+            .then(() => new Promise((innerResolve, innerReject) => {
+                setTimeout(() => {
+                    removeDialogueBox(dialogueContainer);
+                    const pirate = document.getElementById('vector-11');
+                    const position = pirate.getBoundingClientRect();
+                    const posX = position.x;
+                    const posY = position.y;
+                    pirate.style.left = `${posX}px`;
+                    pirate.style.top = `${posY}px`;
+                    pirate.classList.add('fade-out-remove');
+                    innerResolve();
+                }, 1000);
+            }))
+            .then(() => new Promise((innerResolve, innerReject) => {
+                setTimeout(() => {
+                    clearElChildren(dialogueContainer);
+                }, 1000);
+            }))
+            .catch((error) => {
+                console.error('Error during dialogue box removal:', error);
+            });
+    }, 500);
+}
+function removeDialogueBox(parentEl) {
+    const children = parentEl.children;
+    for (let i = 0; i < children.length; i++) {
+        children[i].classList.add('remove-dialogue-box');
+    }
+}
+// Removes all elements with class .para
+function removePara() {
+    const paraEls = document.querySelectorAll('.para');
+    paraEls.forEach((para) => {
+        para.remove();
+    });
+}
+
+// Method for appending vectors to the parent element
+function appendVectors(parent, vectors) {
+    vectors.forEach((vector) => {
+        const src = vector.src;
+        const elClass = vector.class;
+        const id = vector.id;
+        const img = createImg(src, elClass, id);
+        parent.appendChild(img);
+    });
+}
 
 function gameDisplay() {
     const content = createDiv('', 'content');

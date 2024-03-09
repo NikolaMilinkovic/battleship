@@ -100,7 +100,6 @@ export function createImg(src = '', classArr = [], id = '') {
 
     return img;
 }
-{ /* <img src="./img/hero-page-svg/background.svg" alt="background" class="" data-speed-x="-0.010" data-speed-y="-0.010" id="para-1"> */ }
 
 export function paraImg(src = '', classArr = ['para'], id = '', dataX = '', dataY = '') {
     const img = document.createElement('img');

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1920 1080">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#_Áåçûìÿííûé_ãðàäèåíò_228-4);
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        fill-rule: evenodd;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-5 {
+        mix-blend-mode: screen;
+      }
+
+      .cls-7 {
+        isolation: isolate;
+      }
+
+      .cls-2 {
+        fill: url(#_Áåçûìÿííûé_ãðàäèåíò_228);
+      }
+
+      .cls-3 {
+        fill: url(#_Áåçûìÿííûé_ãðàäèåíò_228-2);
+      }
+
+      .cls-8 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-9 {
+        fill: none;
+      }
+
+      .cls-4 {
+        fill: url(#_Áåçûìÿííûé_ãðàäèåíò_244);
+      }
+
+      .cls-5 {
+        fill: url(#_Áåçûìÿííûé_ãðàäèåíò_228-3);
+      }
+
+      .cls-6 {
+        fill: url(#_Áåçûìÿííûé_ãðàäèåíò_36);
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-9" x="-119.26" width="2178.54" height="1089.27"/>
+    </clipPath>
+    <linearGradient id="_Áåçûìÿííûé_ãðàäèåíò_36" data-name="Áåçûìÿííûé ãðàäèåíò 36" x1="959.75" y1="1098.39" x2="959.75" y2="658.42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#a9ffc9"/>
+      <stop offset=".19" stop-color="#9ff7ce"/>
+      <stop offset=".5" stop-color="#87e2de"/>
+      <stop offset=".89" stop-color="#5fc0f7"/>
+      <stop offset="1" stop-color="#54b6ff"/>
+    </linearGradient>
+    <linearGradient id="_Áåçûìÿííûé_ãðàäèåíò_244" data-name="Áåçûìÿííûé ãðàäèåíò 244" x1="1136.93" y1="666.38" x2="1136.93" y2="650.26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#98e3ff"/>
+      <stop offset=".33" stop-color="#a1e9fa"/>
+      <stop offset=".87" stop-color="#b9faed"/>
+      <stop offset="1" stop-color="#c0ffea"/>
+    </linearGradient>
+    <linearGradient id="_Áåçûìÿííûé_ãðàäèåíò_228" data-name="Áåçûìÿííûé ãðàäèåíò 228" x1="-149.45" y1="850.89" x2="2070.48" y2="850.89" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#59978e"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+    <linearGradient id="_Áåçûìÿííûé_ãðàäèåíò_228-2" data-name="Áåçûìÿííûé ãðàäèåíò 228" x1="264.15" y1="715.75" x2="1729" y2="715.75" xlink:href="#_Áåçûìÿííûé_ãðàäèåíò_228"/>
+    <linearGradient id="_Áåçûìÿííûé_ãðàäèåíò_228-3" data-name="Áåçûìÿííûé ãðàäèåíò 228" x1="944.47" y1="684.76" y2="684.76" xlink:href="#_Áåçûìÿííûé_ãðàäèåíò_228"/>
+    <linearGradient id="_Áåçûìÿííûé_ãðàäèåíò_228-4" data-name="Áåçûìÿííûé ãðàäèåíò 228" x1="-147.64" y1="850.13" x2="1274.49" y2="850.13" xlink:href="#_Áåçûìÿííûé_ãðàäèåíò_228"/>
+  </defs>
+  <g class="cls-7">
+    <g id="Bg">
+      <g class="cls-8">
+        <g>
+          <polygon class="cls-6" points="-150.97 665.48 2070.48 658.42 2070.48 1098.39 -139.05 1087.44 -150.97 665.48"/>
+          <path class="cls-4" d="m160.97,660.71l1951.93-10.46s-1533.75,27.72-1951.93,10.46Z"/>
+          <polygon class="cls-2" points="-149.45 696.59 2070.48 712.72 2070.48 994.09 -141.37 1005.19 -149.45 696.59"/>
+          <path class="cls-3" d="m264.15,700.38s333.49,29.9,782.59,30.71c449.1.82,682.26-21.52,682.26-21.52l-1464.85-9.19Z"/>
+          <path class="cls-5" d="m944.47,687.36l1126-28.94v52.68s-602.58-6.55-1126-23.74Z"/>
+          <path class="cls-1" d="m-147.64,811.89s1092.11,25.93,1422.13,51.04c0,0-835.35,23.03-1419.97,25.45l-2.16-76.49Z"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

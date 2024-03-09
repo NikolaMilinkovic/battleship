@@ -69,6 +69,10 @@ table {
     scale: 1.05;
     pointer-events: none;
 }
+.vector{
+    scale: 1.05;
+    pointer-events: none;
+}
 #para-10{
     translate: -100;
     
@@ -190,6 +194,7 @@ h2{
     align-self: center;
     justify-self: center;
     position: absolute;
+
     background-color: var(--background-color);
     background-color: rgba(0, 13, 31, 0.7);
 }
@@ -512,7 +517,7 @@ html, body {
     width: 100%;
     position: absolute;
     top: 10vh;
-    left: calc(50vw - 150px);
+    left: calc(50vw - 250px);
     flex-direction: column;
     align-self: center;
     justify-self: center;
@@ -524,7 +529,7 @@ html, body {
     min-width: 100%;
     background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
     padding: 16px;
-    margin: 16px;
+    margin: 16px 0px;
     box-sizing: border-box;
     border-radius: 20px;
     border: 6px solid #560F15;
@@ -540,6 +545,9 @@ html, body {
         transform: rotate(0deg) translateX(0%) scaleX(1); 
         opacity: 1;
     }
+}
+.remove-dialogue-box{
+    animation: remove-dialogue-box 700ms forwards;
 }
 @keyframes remove-dialogue-box {
     from {
@@ -584,6 +592,16 @@ html, body {
 }
 .fade-out{
     animation: fade-out 1s;
+}
+img#vector-11{
+}
+.fade-out-remove{
+    animation: fade-out-remove 1s forwards !important;
+}
+@keyframes fade-out-remove {
+    to{
+        opacity: 0;
+    }
 }
 @keyframes fade-out {
     from {
@@ -677,3 +695,146 @@ html, body {
 }
 
 /* \PLAYER BOARD AND SHIP PLACEMENT */
+
+
+/* TO SHIP TRANSITION */
+#to-ship-transition-screen{
+    display: flex;
+    background-color: black;
+    opacity: 0;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    position: absolute;
+}
+.fade-to-black{
+    animation: fade-in 2.5s ease forwards;
+}
+.fade-out-2s{
+    animation: fade-out 2s linear forwards;
+}
+#following-day-text{
+    color: white;
+    font-size: 56px;
+    font-weight: bold;
+}
+.zoom-fade-in-out{
+    animation: zoom-and-fade-out 3.5s linear forwards;
+}
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        display: none;
+    }
+    to {
+        opacity: 1;
+        display: flex;
+    }
+}
+@keyframes zoom-and-fade-out {
+    from{
+        transform: scale(100%);
+        opacity: 0;
+        letter-spacing: normal;
+    }
+    50%{
+        transform: scale(110%);
+        opacity: 1;
+    }
+    to {
+        transform: scale(120%);
+        opacity: 0;
+        letter-spacing: 1.5rem;
+    }
+    
+}
+.paused {
+    animation-play-state: paused !important;
+}
+.move-deck{
+    animation: move-deck 8s alternate ease-in-out infinite;
+}
+@keyframes move-deck {
+    from{
+        transform: translateY(0vh);
+    }
+    to{
+        transform: translateY(5vh);
+    }
+}
+.move-cloud-1{
+    animation: move-cloud 200s linear infinite;
+}
+.move-cloud-2{
+    animation: move-cloud 130s linear infinite;
+}
+.move-cloud-cluster{
+    animation: move-cloud 70s linear infinite;
+}
+@keyframes move-cloud {
+    from {
+        transform: translate(0vw, 0vw);
+    }
+    40% {
+        transform: translate(100vw, 0vw);
+    }
+    41% {
+        transform: translate(100vw, -100vw);
+    }
+    42% {
+        transform: translate(-200vw, -100vw);
+    }
+    43% {
+        transform: translate(-100vw, 0vw);
+    }
+    to {
+        transform: translate(0vw, 0vw);
+    }
+}
+#vector-2{
+    animation: ship-travel-right-to-left 45s linear infinite;
+}
+#vector-3{
+    animation: ship-travel-right-to-left 95s linear infinite;
+}
+#vector-4{
+    animation: ship-travel-left-to-right 125s linear infinite;
+}
+
+@keyframes ship-travel-right-to-left {
+    from {
+        transform: translate(100vw, 0vw);
+    }
+    97% {
+        transform: translate(-100vw, 0vw);
+    }
+    98% {
+        transform: translate(-100vw, -100vw);
+    }
+    99% {
+        transform: translate(100vw, -100vw);
+    }
+    to {
+        transform: translate(100vw, 0vw);
+    }
+}
+
+@keyframes ship-travel-left-to-right {
+    from {
+        transform: translate(-100vw, 0vw);
+    }
+    97% {
+        transform: translate(100vw, 0vw);
+    }
+    98% {
+        transform: translate(100vw, -100vw);
+    }
+    99% {
+        transform: translate(-100vw, -100vw);
+    }
+    to {
+        transform: translate(-100vw, 0vw);
+    }
+}
