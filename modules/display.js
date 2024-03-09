@@ -5,7 +5,9 @@ import {
     createDiv, createPara, createInput, appendChildren, createButton, paraImg, createImg,
 } from './elementBuilder.js';
 import Player from './player.js';
-import { initPlayerBoard, gameStart, initAiBoard } from './game.js';
+import {
+    initPlayerBoard, playGame, initAiBoard, getTurn, changeTurn, innitPlayer,
+} from './game.js';
 import { enablePara, disablePara } from './para.js';
 import {
     getVolumeSlider, getIcon, getAudioControls, getVolumeIcons,
@@ -297,10 +299,10 @@ function randomizeFleet() {
             return getRandomizedMap(parentEl);
         })
         .then(() => {
-            // playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
-            // parentEl.appendChild(playerBoardReference);
-            // playerBoardReference.classList.add('cabin-map-display');
-            toShipTransition(8); // Needs to be 8000
+            playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
+            parentEl.appendChild(playerBoardReference);
+            playerBoardReference.classList.add('cabin-map-display');
+            toShipTransition(8000); // Needs to be 8000
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
@@ -334,6 +336,7 @@ function transitionToShip(timer) {
 function displayMap(parentEl) {
     const pBoardContainer = document.createElement('div');
     pBoardContainer.classList.add('player-board-container');
+    pBoardContainer.setAttribute('id', 'player-board-container');
     playerBoard.init();
     const grid = buildGrid();
     pBoardContainer.appendChild(grid);
@@ -344,17 +347,18 @@ function getRandomizedMap(parentEl) {
     return new Promise((resolve, reject) => {
         const pBoardContainer = document.createElement('div');
         pBoardContainer.classList.add('player-board-container');
+        pBoardContainer.setAttribute('id', 'player-board-container');
         playerBoard.init();
-        return playerBoard.placeShipsRandomly()
+        playerBoard.placeShipsRandomly()
             .then(() => {
                 const grid = buildGrid();
                 pBoardContainer.appendChild(grid);
                 playerBoardReference = pBoardContainer;
-                resolve(); // Resolve the promise once everything is done
+                resolve();
             })
             .catch((error) => {
                 console.error('Error during dialogue box removal:', error);
-                reject(error); // Reject the promise if an error occurs
+                reject(error);
             });
     });
 }
@@ -581,7 +585,7 @@ function buildGrid() {
                 const y = parseInt(event.target.getAttribute('y-cord'));
                 if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
                     event.target.appendChild(draggedEl);
-                    updateBoard(document.querySelectorAll('.player-board-container'));
+                    updateBoard();
                     setTimeout(checkForUnplacedShips, 500);
                 }
             }
@@ -590,6 +594,7 @@ function buildGrid() {
     });
     return board;
 }
+
 function checkForUnplacedShips() {
     const shipContainer = document.getElementById('place-ship-container');
     if (shipContainer.childNodes.length === 1) {
@@ -609,7 +614,8 @@ function checkForUnplacedShips() {
         }, 750);
     }
 }
-function updateBoard(boardContainer) {
+function updateBoard() {
+    const boardContainer = document.querySelector('.player-board-container');
     clearElChildren(boardContainer);
 
     const newBoard = buildGrid();
@@ -681,22 +687,23 @@ const shipDeckVectorEls = [
 
 function toShipTransition(timer) {
     const dialogueContainer = document.getElementById('dialogue-container');
-    setTimeout(() => {
-        transitionToShip(timer)
-            .then((div) => {
-                removePara();
-                clearElChildren(dialogueContainer);
-                setTimeout(() => {
-                    div.classList.add('fade-out-2s');
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            transitionToShip(timer)
+                .then((div) => {
+                    removePara();
+                    clearElChildren(dialogueContainer);
+                    setTimeout(() => {
+                        div.classList.add('fade-out-2s');
 
-                    battleAmbience.volume = (slider.value / 100) / 3;
-                    battleAmbience.play();
-                    hasBattleStarted = true;
-                    resolve();
-                }, 300);
-            })
-            .then(() => {
-                appendVectors(paraContainer, shipDeckVectorEls);
+                        battleAmbience.volume = (slider.value / 100) / 3;
+                        battleAmbience.play();
+                        hasBattleStarted = true;
+                        resolve();
+                    }, 300);
+                })
+                .then(() => {
+                    appendVectors(paraContainer, shipDeckVectorEls);
                 // return new Promise((innerResolve, innerReject) => {
                 //     setTimeout(() => {
                 //         playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
@@ -704,42 +711,43 @@ function toShipTransition(timer) {
                 //         });
                 //     }, 800);
                 // });
-            })
-            .then(() => new Promise((innerResolve, innerReject) => {
-                setTimeout(() => {
-                    removeDialogueBox(dialogueContainer);
-                    const pirate = document.getElementById('vector-11');
-
-                    // Gets current element position and updates it as translate
-                    const position = pirate.getBoundingClientRect();
-                    const posX = position.x;
-                    const posY = position.y;
-                    pirate.style.transform = `translate(${posX}px, ${posY}px)`;
-                    pirate.classList.add('fade-out-remove');
-                    innerResolve();
-                }, 1000);
-            }))
-            .then(() => new Promise((innerResolve, innerReject) => {
-                setTimeout(() => {
-                    clearElChildren(dialogueContainer);
+                })
+                .then(() => new Promise((innerResolve, innerReject) => {
                     setTimeout(() => {
-                        innerResolve();
-                    }, 100);
-                }, 1000);
-            }))
-            .then(() => new Promise((innerResolve, innerReject) => {
-                const playerBoard = buildGrid();
-                gameDisplay(playerName);
-                displayAiMap();
-            }))
-            .catch((error) => {
-                console.error('Error during dialogue box removal:', error);
-            });
-    }, 500);
-}
+                        removeDialogueBox(dialogueContainer);
+                        const pirate = document.getElementById('vector-11');
 
+                        // Gets current element position and updates it as translate
+                        const position = pirate.getBoundingClientRect();
+                        const posX = position.x;
+                        const posY = position.y;
+                        pirate.style.transform = `translate(${posX}px, ${posY}px)`;
+                        pirate.classList.add('fade-out-remove');
+                        innerResolve();
+                    }, 1000);
+                }))
+                .then(() => new Promise((innerResolve, innerReject) => {
+                    setTimeout(() => {
+                        clearElChildren(dialogueContainer);
+                        setTimeout(() => {
+                            innerResolve();
+                        }, 100);
+                    }, 1000);
+                }))
+                .then(() => new Promise((innerResolve, innerReject) => {
+                    gameDisplay(playerName);
+                    displayAiMap();
+                    innitPlayer(playerName);
+                    updatePlayerBoard(document.getElementById('player-gameboard'));
+                }))
+                .catch((error) => {
+                    console.error('Error during dialogue box removal:', error);
+                });
+        }, 500);
+    });
+}
 // Displays the boards
-function gameDisplay(playerName, playerBoard, aiName, aiBoard) {
+function gameDisplay(playerName) {
     const content = createDiv('', 'game-content');
 
     const playerContainer = createDiv('', 'player-container');
@@ -760,6 +768,7 @@ function gameDisplay(playerName, playerBoard, aiName, aiBoard) {
     appendChildren(content, [playerContainer, aiContainer]);
     body.appendChild(content);
 }
+// Method for creating and displayin the AI map
 function displayAiMap() {
     const aiGrid = document.getElementById('ai-gameboard');
     aiBoardReference = buildAiGrid(aiGameboard);
@@ -778,12 +787,7 @@ function buildAiGrid(userGameboard) {
         field.classList.add('default-field');
         field.setAttribute('x-cord', `${obj.cordX}`);
         field.setAttribute('y-cord', `${obj.cordY}`);
-        // if (obj.hasShip) {
-        //     const type = obj.shipType;
-        //     field.classList.add('field-with-ship');
-        //     field.classList.add(`${getShipTypeImg(type)}`);
-        // }
-        // if (obj.isShot) field.classList.add('field-hit');
+
         if (obj.isShot === true) {
             if (obj.hasShip) {
                 field.classList.add('field-hit');
@@ -792,29 +796,28 @@ function buildAiGrid(userGameboard) {
             }
         }
         field.addEventListener('click', (event) => {
+            const turn = getTurn();
             const x = parseInt(event.target.getAttribute('x-cord'));
             const y = parseInt(event.target.getAttribute('y-cord'));
-            if (field.classList.contains('field-miss') || field.classList.contains('field-hit')) {
-                console.log('FIELD PLAYED ALREADY');
-            } else {
-                console.log('FIELD CAN BE PLAYED, PLAYING NOW.');
-                objList.forEach((obj) => {
-                    if (obj.cordX === x && obj.cordY === y) {
-                        obj.isShot = true;
-                        if (obj.hasShip) {
-                            field.classList.add('field-hit');
-                        } else {
-                            field.classList.add('field-miss');
-                        }
-                    }
-                });
-                updateAiBoard(document.getElementById('ai-gameboard'));
+            if (field.classList.contains('field-miss') || field.classList.contains('field-hit') || turn !== 'player') {
+                return false;
             }
+
+            // playerTurn(aiGameboard, x, y);
+            aiGameboard.receiveAttack(x, y);
+            updateAiBoard(document.getElementById('ai-gameboard'));
+            changeTurn();
+            playGame(playerBoard, aiGameboard);
+            setTimeout(() => {
+                updatePlayerBoard(document.getElementById('player-gameboard'));
+            }, 250);
         });
         board.appendChild(field);
     });
     return board;
 }
+
+// Method that updates the AI board
 function updateAiBoard(boardContainer) {
     clearElChildren(boardContainer);
 
@@ -823,8 +826,38 @@ function updateAiBoard(boardContainer) {
     aiBoardReference = newBoard;
 }
 
-function getAI() {
+// Method that updated player board
+function updatePlayerBoard(parent) {
+    console.log('Updating player board');
+    const board = createDiv([], 'player-board');
+    const objList = playerBoard.fields;
 
+    console.log(objList);
+    objList.forEach((obj) => {
+        const field = document.createElement('div');
+        field.classList.add('default-field');
+        field.setAttribute('x-cord', `${obj.cordX}`);
+        field.setAttribute('y-cord', `${obj.cordY}`);
+
+        if (obj.hasShip === true) {
+            const type = obj.shipType;
+            field.classList.add('field-with-ship');
+            field.classList.add(`${getShipTypeImg(type)}`);
+        }
+        if (obj.isShot === true) {
+            if (obj.hasShip) {
+                const type = obj.shipType;
+                field.classList.remove(`${getShipTypeImg(type)}`);
+                field.classList.add('field-hit');
+            } else {
+                field.classList.add('field-miss');
+            }
+        }
+        board.appendChild(field);
+    });
+
+    clearElChildren(parent);
+    parent.appendChild(board);
 }
 
 

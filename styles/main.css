@@ -679,7 +679,8 @@ img#vector-11{
     box-sizing: border-box;
 }
 .field-hit{
-    z-index: 2;
+
+    z-index: 3;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -692,6 +693,16 @@ img#vector-11{
     background-position: center;
     background-image: url('../img/x-mark.png'); */
     background-color: #7B3825;
+}
+.x-mark-div{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-image: url('../img/x-mark.png');
 }
 .field-with-ship{
     background-repeat: no-repeat;

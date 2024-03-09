@@ -27,7 +27,8 @@ export default class Player {
             cordX = Math.floor(Math.random() * 10);
             cordY = Math.floor(Math.random() * 10);
         } while (this.alreadyHitField.some((field) => field[0] === cordX && field[1] === cordY));
-        gameboard.attack(cordX, cordY);
+
         this.alreadyHitField.push([cordX, cordY]);
+        gameboard.receiveAttack(cordX, cordY);
     }
 }

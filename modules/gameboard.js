@@ -66,7 +66,6 @@ export default class Gameboard {
                 return 'y';
             }
             for (let i = 0; i < 5; i++) {
-                console.log(`placing ship: ${i + 1}`);
                 let shipPlaced = false;
                 while (!shipsPlaced[`ship${i + 1}`]) {
                     const orientation = getOrientation();
@@ -75,12 +74,10 @@ export default class Gameboard {
                     shipPlaced = this.placeShip(shipsTypes[`type${i + 1}`], 0, orientation, x, y);
                     if (shipPlaced) {
                         shipsPlaced[`ship${i + 1}`] = true;
-                        console.log(`Ship placed! ${shipPlaced}`);
                     }
                 }
             }
-            console.log('LOGGING FINISHED FIELDS');
-            console.log(this.fields);
+
             resolve();
         });
     }
@@ -149,20 +146,21 @@ export default class Gameboard {
     receiveAttack(cordX, cordY) {
         const field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY);
         if (field.hasShip === true) {
+            field.isShot = true;
             const ship = this.ships[field.shipType];
             ship.hit();
-            if (this.isAllSunk()) return 'All ships lost, game over!';
-            if (ship.isSunk()) return 'Ship lost!';
+            if (this.isAllSunk()) return console.log('All ships lost, game over!');
+            if (ship.isSunk()) return console.log('Ship lost!');
             return 'hit';
         }
         field.isShot = true;
         this.shotField.push([cordX, cordY]);
-        return 'miss';
+        console.log(field);
     }
 
     // Checks if all ships are sunk
     isAllSunk() {
-        if (Object.keys(this.ships).every((ship) => this.ships[ship].sunk === true)) return true;
+        if (Object.keys(this.ships).every((ship) => this.ships[ship].isSunk())) return true;
         return false;
     }
 
