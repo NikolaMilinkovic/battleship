@@ -705,11 +705,12 @@ function toShipTransition(timer) {
                 setTimeout(() => {
                     removeDialogueBox(dialogueContainer);
                     const pirate = document.getElementById('vector-11');
+
+                    // Gets current element position and updates it as translate
                     const position = pirate.getBoundingClientRect();
                     const posX = position.x;
                     const posY = position.y;
-                    pirate.style.left = `${posX}px`;
-                    pirate.style.top = `${posY}px`;
+                    pirate.style.transform = `translate(${posX}px, ${posY}px)`;
                     pirate.classList.add('fade-out-remove');
                     innerResolve();
                 }, 1000);

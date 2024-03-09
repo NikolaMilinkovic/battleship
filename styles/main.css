@@ -594,6 +594,7 @@ html, body {
     animation: fade-out 1s;
 }
 img#vector-11{
+    
 }
 .fade-out-remove{
     animation: fade-out-remove 1s forwards !important;
