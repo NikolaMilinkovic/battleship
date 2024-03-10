@@ -14,6 +14,7 @@ export function getVolumeIcons() {
 export function getIcon() {
     const icon = document.createElement('img');
     icon.classList.add('audio-control');
+    icon.alt = 'Volume control icon';
     icon.src = volumeIcons.volXWhite;
 
     return icon;

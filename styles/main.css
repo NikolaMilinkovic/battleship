@@ -685,6 +685,15 @@ img#vector-11{
     background-size: cover;
     background-position: center;
     background-image: url('../img/x-mark.png');
+    animation: field-hit-animation 0.3s linear forwards;
+}
+@keyframes field-hit-animation {
+    from {
+        transform: scale(1.1);
+    }
+    to {
+        transform: scale(1);
+    }
 }
 .field-miss{
     /* z-index: 2;
@@ -867,7 +876,6 @@ img#vector-11{
     align-items: center;
     justify-content: center;
     gap: 4rem;
-    /* padding: 10% 20%; */
     width: 100%;
     height: 100%;
 }
@@ -875,6 +883,7 @@ img#vector-11{
     display: flex;
     align-items: center;
     justify-content: center;
+    color: white;
     width: 100%;
     padding: 16px;
     font-size: 22px;

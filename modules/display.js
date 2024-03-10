@@ -56,6 +56,10 @@ function playShipDrop() {
     shipDrop.currentTime = 0;
     shipDrop.play();
 }
+// Background fight music
+const fightMusic = new Audio('./audio/two-steps-from-hell.mp3');
+fightMusic.volume = 0.15;
+fightMusic.loop = true;
 // MISS AUDIO
 const miss1 = new Audio('./audio/miss-1.mp3');
 const miss2 = new Audio('./audio/miss-2.mp3');
@@ -76,6 +80,15 @@ let aiBoardReference;
 const battleAmbience = new Audio('./audio/pirate-ship-battle-ambience.mp3');
 battleAmbience.volume = 0.15;
 battleAmbience.loop = true;
+// COMPLIMENT AUDIO ROLL
+let complimentAudio = new Audio('./audio/compliment-1.mp3');
+function rollCompliment() {
+    const rand = Math.floor(Math.random() * 6);
+    complimentAudio = new Audio(`./audio/compliment-${rand + 1}.mp3`);
+    complimentAudio.currentTime = 0;
+    const roll = Math.floor(Math.random() * 6);
+    if (roll <= 3) complimentAudio.play();
+}
 
 // Prevents the form default behvaiour
 form.addEventListener('submit', preventDefault);
@@ -121,7 +134,8 @@ icon.addEventListener('click', () => {
         icon.src.toString().includes(volumeIcons.volXWhite.slice(1))) {
         audio.volume = cachedAudioVolume;
         slider.value = cachedAudioVolume * 100;
-        cannon.volume = (slider.value / 100) / 3;
+        complimentAudio.volume = (slider.value / 100);
+        cannon.volume = (slider.value / 100) / 4;
         miss1.volume = (slider.value / 100) / 3;
         miss2.volume = (slider.value / 100) / 3;
         shipDrop.volume = (slider.value / 100);
@@ -130,9 +144,17 @@ icon.addEventListener('click', () => {
         if (hasBattleStarted) {
             if (battleAmbience.paused) {
                 battleAmbience.play();
-                battleAmbience.volume = (slider.value / 100) / 4;
+                battleAmbience.volume = (slider.value / 100) / 5;
             } else {
-                battleAmbience.volume = (slider.value / 100) / 4;
+                battleAmbience.volume = (slider.value / 100) / 5;
+            }
+        }
+        if (hasBattleStarted) {
+            if (fightMusic.paused) {
+                fightMusic.play();
+                fightMusic.volume = (slider.value / 100) / 3;
+            } else {
+                fightMusic.volume = (slider.value / 100) / 3;
             }
         }
 
@@ -148,6 +170,8 @@ icon.addEventListener('click', () => {
         audio.volume = 0;
         slider.value = 0;
         battleAmbience.volume = 0;
+        fightMusic.volume = 0;
+        complimentAudio.volume = 0;
         cannon.volume = 0;
         miss1.volume = 0;
         miss2.volume = 0;
@@ -166,17 +190,26 @@ slider.addEventListener('change', (event) => {
     if (hasBattleStarted) {
         if (battleAmbience.paused) {
             battleAmbience.play();
-            battleAmbience.volume = (slider.value / 100) / 4;
+            battleAmbience.volume = (slider.value / 100) / 5;
         } else {
-            battleAmbience.volume = (slider.value / 100) / 4;
+            battleAmbience.volume = (slider.value / 100) / 5;
         }
     }
-    cannon.volume = (slider.value / 100) / 3;
+    if (hasBattleStarted) {
+        if (fightMusic.paused) {
+            fightMusic.play();
+            fightMusic.volume = (slider.value / 100) / 3;
+        } else {
+            fightMusic.volume = (slider.value / 100) / 3;
+        }
+    }
+    cannon.volume = (slider.value / 100) / 4;
     miss1.volume = (slider.value / 100) / 3;
     miss2.volume = (slider.value / 100) / 3;
     shipDrop.volume = (slider.value / 100);
     btnClick.volume = (slider.value / 100);
     shipSink.volume = (slider.value / 100);
+    complimentAudio.volume = (slider.value / 100);
 });
 // Handles displaying volume input slider
 audioControls.addEventListener('mouseenter', () => {
@@ -658,8 +691,9 @@ function buildGrid() {
                 if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
                     event.target.appendChild(draggedEl);
                     updateBoard();
-                    setTimeout(checkForUnplacedShips, 500);
+                    setTimeout(checkForUnplacedShips, 1000);
                     playShipDrop();
+                    rollCompliment();
                 }
             }
         });
@@ -768,8 +802,9 @@ function toShipTransition(timer) {
                     clearElChildren(dialogueContainer);
                     setTimeout(() => {
                         div.classList.add('fade-out-2s');
-
-                        battleAmbience.volume = (slider.value / 100) / 3;
+                        fightMusic.volume = (slider.value / 100) / 3;
+                        battleAmbience.volume = (slider.value / 100) / 5;
+                        fightMusic.play();
                         battleAmbience.play();
                         hasBattleStarted = true;
                         resolve();
