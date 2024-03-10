@@ -33,6 +33,8 @@ export default class Gameboard {
                     hasShip: false,
                     shipType: null,
                     isShot: false,
+                    hasMine: false,
+                    hasLand: false,
                 };
                 this.fields.push(obj);
             }
@@ -82,6 +84,24 @@ export default class Gameboard {
         });
     }
 
+    placeMines(amount) {
+        let minesPlaced = 0;
+        function randomInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        while (minesPlaced < amount) {
+            const x = randomInteger(0, 9);
+            const y = randomInteger(0, 9);
+            const field = this.fields.find((obj) => obj.cordX === x && obj.cordY === y);
+            if (!field.hasShip && !field.hasLand && !field.hasMine) {
+                console.log(`placing mine at x:${x}, y:${y}`);
+                field.hasMine = true;
+                minesPlaced++;
+            }
+        }
+    }
+
+
     // shipType kako bi uzeli size, clickValue > vrednost koju dobijamo kada kliknemo da drag brod
     // Div koji predstavlja brod ima u zavisnosti od duzine isti broj divova unutra, u zavisnosti od
     // toga da li smo kliknuli na pocetak ili kraj drop se gleda drugacije, ako je klik skroz levo
@@ -107,9 +127,8 @@ export default class Gameboard {
                 field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY - i);
             }
             if (!field) return false;
-            if (field.hasShip === true) {
-                return false;
-            }
+            if (field.hasShip === true) return false;
+            if (field.hasMine === true) return false;
 
             this.shipPlacementFields.push(field);
         }
@@ -121,9 +140,8 @@ export default class Gameboard {
                 field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY + i);
             }
             if (!field) return false;
-            if (field.hasShip === true) {
-                return false;
-            }
+            if (field.hasShip === true) return false;
+            if (field.hasMine === true) return false;
 
             this.shipPlacementFields.push(field);
         }
@@ -145,17 +163,50 @@ export default class Gameboard {
 
     receiveAttack(cordX, cordY) {
         const field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY);
+        if (field.isShot) return false;
+
         if (field.hasShip === true) {
             field.isShot = true;
             const ship = this.ships[field.shipType];
             ship.hit();
-            if (this.isAllSunk()) return 'Game over!';
+            // console.log('Logging all ships current HP:');
+            // Object.values(this.ships).forEach((shipy) => {
+            //     shipy.getHealth();
+            // });
+
+
+            if (this.isAllSunk()) {
+                return 'Game over!';
+            }
             if (ship.isSunk()) return 'Ship lost!';
-            return 'hit';
+            return 'hit!';
+        }
+        if (field.hasMine === true && !field.isShot) {
+            field.isShot = true;
+            const mineCalc = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+            mineCalc.forEach((offset) => {
+                const newX = cordX + offset[0];
+                const newY = cordY + offset[1];
+                if (newX >= 0 && newX <= 9 && newY >= 0 && newY <= 9) {
+                    this.receiveAttack(newX, newY);
+                }
+            });
+
+            this.shotField.push([cordX, cordY]);
+            return 'hit a mine!';
         }
         field.isShot = true;
         this.shotField.push([cordX, cordY]);
     }
+
+    // Update shotFields
+    // updateShotField(){
+    //     // Compare size za svaki brod i koliko field sa tim brodom isShot === true
+    //     // Nakon sto stu svi
+    //     this.shotField.forEach(field => {
+    //         field.isShot = true;
+    //     });
+    // }
 
     // Checks if all ships are sunk
     isAllSunk() {

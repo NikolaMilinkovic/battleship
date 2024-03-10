@@ -41,4 +41,9 @@ export default class Ship {
         }
         return false;
     }
+
+    // Returns current healt level
+    getHealth() {
+        console.log(`Hit: ${this.hits} / ${this.size} :Size >>> ${this.type}`);
+    }
 }

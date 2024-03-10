@@ -33,12 +33,20 @@ let tempFieldY;
 // CANNON AUDIO
 const cannon = new Audio('./audio/cannon-fire-2s.mp3');
 function playCannon() {
+    cannon.volume = (slider.value / 100) / 4;
     cannon.currentTime = 0;
     cannon.play();
+}
+const bombExplosion = new Audio('./audio/bomb-explosion.wav');
+function playBombExplosion() {
+    bombExplosion.volume = (slider.value / 100) / 4;
+    bombExplosion.currentTime = 0;
+    bombExplosion.play();
 }
 // BTN CLICK
 const btnClick = new Audio('./audio/btn-click.mp3');
 function playbtnClick() {
+    btnClick.volume = (slider.value / 100);
     btnClick.currentTime = 0;
     btnClick.play();
 }
@@ -47,12 +55,14 @@ let shipSink = new Audio('./audio/ship-sunk-1.mp3');
 function shipSinkPlay() {
     const rand = Math.floor(Math.random() * 7);
     shipSink = new Audio(`./audio/ship-sunk-${rand + 1}.mp3`);
+    shipSink.volume = (slider.value / 100);
     shipSink.currentTime = 0;
     shipSink.play();
 }
 // Ship drop audio
 const shipDrop = new Audio('./audio/ship-drop.wav');
 function playShipDrop() {
+    shipDrop.volume = (slider.value / 100);
     shipDrop.currentTime = 0;
     shipDrop.play();
 }
@@ -67,9 +77,13 @@ function playMiss() {
     const rand = Math.floor(Math.random() * 2);
     miss1.currentTime = 0;
     miss2.currentTime = 0;
+
+
     if (rand === 1) {
+        miss1.volume = (slider.value / 100) / 3;
         miss1.play();
     } else {
+        miss2.volume = (slider.value / 100) / 3;
         miss2.play();
     }
 }
@@ -82,9 +96,11 @@ battleAmbience.volume = 0.15;
 battleAmbience.loop = true;
 // COMPLIMENT AUDIO ROLL
 let complimentAudio = new Audio('./audio/compliment-1.mp3');
+complimentAudio.volume = 0.15;
 function rollCompliment() {
     const rand = Math.floor(Math.random() * 6);
     complimentAudio = new Audio(`./audio/compliment-${rand + 1}.mp3`);
+    complimentAudio.volume = (slider.value / 100);
     complimentAudio.currentTime = 0;
     const roll = Math.floor(Math.random() * 6);
     if (roll <= 3) complimentAudio.play();
@@ -136,6 +152,7 @@ icon.addEventListener('click', () => {
         slider.value = cachedAudioVolume * 100;
         complimentAudio.volume = (slider.value / 100);
         cannon.volume = (slider.value / 100) / 4;
+        bombExplosion.volume = (slider.value / 100) / 4;
         miss1.volume = (slider.value / 100) / 3;
         miss2.volume = (slider.value / 100) / 3;
         shipDrop.volume = (slider.value / 100);
@@ -173,6 +190,7 @@ icon.addEventListener('click', () => {
         fightMusic.volume = 0;
         complimentAudio.volume = 0;
         cannon.volume = 0;
+        bombExplosion.volume = 0;
         miss1.volume = 0;
         miss2.volume = 0;
         shipDrop.volume = 0;
@@ -203,6 +221,7 @@ slider.addEventListener('change', (event) => {
             fightMusic.volume = (slider.value / 100) / 3;
         }
     }
+    bombExplosion.volume = (slider.value / 100) / 4;
     cannon.volume = (slider.value / 100) / 4;
     miss1.volume = (slider.value / 100) / 3;
     miss2.volume = (slider.value / 100) / 3;
@@ -400,10 +419,10 @@ function randomizeFleet() {
             return getRandomizedMap(parentEl);
         })
         .then(() => {
-            playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
+            // playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
             parentEl.appendChild(playerBoardReference);
             playerBoardReference.classList.add('cabin-map-display');
-            toShipTransition(8000); // Needs to be 8000
+            toShipTransition(1000); // Needs to be 8000
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
@@ -438,7 +457,7 @@ function displayMap(parentEl) {
     const pBoardContainer = document.createElement('div');
     pBoardContainer.classList.add('player-board-container');
     pBoardContainer.setAttribute('id', 'player-board-container');
-    playerBoard.init();
+    // playerBoard.init();
     const grid = buildGrid();
     pBoardContainer.appendChild(grid);
     parentEl.appendChild(pBoardContainer);
@@ -449,7 +468,6 @@ function getRandomizedMap(parentEl) {
         const pBoardContainer = document.createElement('div');
         pBoardContainer.classList.add('player-board-container');
         pBoardContainer.setAttribute('id', 'player-board-container');
-        playerBoard.init();
         playerBoard.placeShipsRandomly()
             .then(() => {
                 const grid = buildGrid();
@@ -507,13 +525,13 @@ function toggleAxis() {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    playAudioSequence(greetDialogues, greetText, parentEl)
-        .then(() => {
-            getDialogueBtns(parentEl, positionFleetBtns);
-        })
-        .catch((error) => {
-            console.error('Error during audio playback:', error);
-        });
+    // playAudioSequence(greetDialogues, greetText, parentEl)
+    //     .then(() => {
+    getDialogueBtns(parentEl, positionFleetBtns);
+    // })
+    // .catch((error) => {
+    //     console.error('Error during audio playback:', error);
+    // });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
@@ -550,6 +568,15 @@ function setShipType(type) {
 function setClickValue(value) {
     clickValue = value;
 }
+
+// Cursor changing via js due to browser default settings
+function dragCursorGrabbed() {
+    document.body.style.cursor = 'move'; // Change cursor to move icon
+}
+function dragCursorDefault() {
+    document.body.style.cursor = 'default';
+}
+// Method for building draggable ships intended for placement on the board
 function createShip(size, type) {
     const ship = createDiv(['place-ship'], '');
     ship.setAttribute('draggable', 'true');
@@ -565,7 +592,11 @@ function createShip(size, type) {
         ship.appendChild(dataField);
     }
     ship.addEventListener('dragstart', getDragEl);
-    ship.addEventListener('dragend', dropEl);
+    ship.addEventListener('dragend', () => {
+        dropEl();
+        dragCursorDefault();
+    });
+    ship.addEventListener('drag', dragCursorGrabbed);
     return ship;
 }
 function getShipTypeImg(type) {
@@ -678,6 +709,7 @@ function buildGrid() {
             field.classList.add(`${getShipTypeImg(type)}`);
         }
         if (obj.isShot) field.classList.add('field-shot');
+        if (obj.hasMine) field.classList.add('field-with-mine');
         if (obj.shipType !== null) console.log('there is a ship here!');
 
         field.addEventListener('dragover', (event) => {
@@ -714,10 +746,10 @@ function checkForUnplacedShips() {
 
         // Continues cabin dialogue
         setTimeout(() => {
-            playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
-                .then(() => {
-                    toShipTransition(200);
-                });
+            // playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
+            //     .then(() => {
+            toShipTransition(200);
+            // });
         }, 750);
     }
 }
@@ -814,9 +846,9 @@ function toShipTransition(timer) {
                     appendVectors(paraContainer, shipDeckVectorEls);
                     return new Promise((innerResolve, innerReject) => {
                         setTimeout(() => {
-                            playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
-                                innerResolve();
-                            });
+                            // playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
+                            innerResolve();
+                            // });
                         }, 800);
                     });
                 })
@@ -898,6 +930,7 @@ function buildAiGrid(userGameboard) {
         field.setAttribute('y-cord', `${obj.cordY}`);
 
         if (obj.isShot === true) {
+            if (obj.hasMine) field.classList.add('field-with-mine');
             if (obj.hasShip) {
                 field.classList.add('field-hit');
             } else {
@@ -920,9 +953,15 @@ function buildAiGrid(userGameboard) {
             }
 
             // Player turn
+
             let result = aiGameboard.receiveAttack(x, y);
+            result = aiGameboard.isAllSunk();
+            console.log(`Result after isAllSunk call > ${result}`);
+            if (result === true) {
+                alert('Game over player won');
+            }
             aiBoard.classList.add('board-disabled');
-            updateAiBoard(document.getElementById('ai-gameboard'));
+            updateAiBoard(document.getElementById('ai-gameboard'), aiGameboard);
             // Handles player click result
             if (result === 'Ship lost!') {
                 const clickX = event.clientX;
@@ -970,16 +1009,16 @@ document.addEventListener('click', (event) => {
             if (target.classList.contains('default-field')) {
                 playCannon();
                 if (!field.hasShip) playMiss();
+                if (field.hasMine) playBombExplosion();
             }
         }
     }
 });
 
 // Method that updates the AI board
-function updateAiBoard(boardContainer) {
+function updateAiBoard(boardContainer, newGameboard) {
     clearElChildren(boardContainer);
-
-    const newBoard = buildAiGrid(aiGameboard);
+    const newBoard = buildAiGrid(newGameboard);
     boardContainer.appendChild(newBoard);
     aiBoardReference = newBoard;
 }
@@ -995,6 +1034,7 @@ function updatePlayerBoard(parent) {
         field.setAttribute('x-cord', `${obj.cordX}`);
         field.setAttribute('y-cord', `${obj.cordY}`);
 
+        if (obj.hasMine) field.classList.add('field-with-mine');
         if (obj.hasShip === true) {
             const type = obj.shipType;
             field.classList.add('field-with-ship');

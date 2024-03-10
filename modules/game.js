@@ -12,6 +12,7 @@ let winner;
 export function initPlayerBoard(playerName) {
     const playerBoard = new Gameboard();
     playerBoard.init();
+    playerBoard.placeMines(5);
     return playerBoard;
 }
 
@@ -19,6 +20,7 @@ export function initPlayerBoard(playerName) {
 export function initAiBoard() {
     const aiGameboard = new Gameboard();
     aiGameboard.init();
+    aiGameboard.placeMines(5);
     aiGameboard.placeShipsRandomly();
     return aiGameboard;
 }
