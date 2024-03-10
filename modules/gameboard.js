@@ -149,13 +149,12 @@ export default class Gameboard {
             field.isShot = true;
             const ship = this.ships[field.shipType];
             ship.hit();
-            if (this.isAllSunk()) return console.log('All ships lost, game over!');
-            if (ship.isSunk()) return console.log('Ship lost!');
+            if (this.isAllSunk()) return 'Game over!';
+            if (ship.isSunk()) return 'Ship lost!';
             return 'hit';
         }
         field.isShot = true;
         this.shotField.push([cordX, cordY]);
-        console.log(field);
     }
 
     // Checks if all ships are sunk

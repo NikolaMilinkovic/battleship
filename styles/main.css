@@ -116,6 +116,7 @@ table {
     --input-blue-color: #006595;
 }
 #volume-container {
+    z-index: 69;
     display: flex;
     align-items: center;
     position: absolute;
@@ -679,7 +680,6 @@ img#vector-11{
     box-sizing: border-box;
 }
 .field-hit{
-
     z-index: 3;
     background-repeat: no-repeat;
     background-size: cover;
@@ -694,16 +694,7 @@ img#vector-11{
     background-image: url('../img/x-mark.png'); */
     background-color: #7B3825;
 }
-.x-mark-div{
-    display: flex;
-    width: 100%;
-    height: 100%;
-    z-index: 3;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-image: url('../img/x-mark.png');
-}
+
 .field-with-ship{
     background-repeat: no-repeat;
     background-size: cover;
@@ -891,6 +882,41 @@ img#vector-11{
     background-image: linear-gradient(to right, #560F15 0%, #7B3825  51%, #300509  100%);
     border: 2px solid #560F15;
     box-sizing: border-box;
+}
+.board-disabled{
+    pointer-events: none;
+}
+#ship-lost-container{
+    position: absolute;
+    z-index: 4;
+    font-weight: bold;
+    font-size: 16px;
+    padding: 16px;
+    border: 2px solid #560F15;
+    --posX: 0px;
+    --posY: 0px;
+    transform: translate(var(--posX), var(--posY));
+    background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+    border-radius: 10px;
+}
+.ship-destroyed-float{
+    animation: ship-destroyed-float 3s linear forwards;
+}
+@keyframes ship-destroyed-float {
+    from {
+        transform: translate(calc(var(--posX)), calc(var(--posY) + 10px)) scale(0.2);
+    }
+    20%{
+        transform: translate(var(--posX), var(--posY)) scale(1);
+    }
+    80%{
+        transform: translate(calc(var(--posX)), calc(var(--posY) - 20px));
+        opacity: 1;
+    }
+    to {
+        transform: translate(calc(var(--posX)), calc(var(--posY) - 25px));
+        opacity: 0;
+    }
 }
 
 

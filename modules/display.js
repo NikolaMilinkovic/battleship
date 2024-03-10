@@ -27,6 +27,48 @@ let playerBoard;
 let playerBoardReference;
 let axis = 'x';
 let hasBattleStarted = false;
+// Temp board field click position
+let tempFieldX;
+let tempFieldY;
+// CANNON AUDIO
+const cannon = new Audio('./audio/cannon-fire-2s.mp3');
+function playCannon() {
+    cannon.currentTime = 0;
+    cannon.play();
+}
+// BTN CLICK
+const btnClick = new Audio('./audio/btn-click.mp3');
+function playbtnClick() {
+    btnClick.currentTime = 0;
+    btnClick.play();
+}
+// SHIP SINK JACK AUDIO
+let shipSink = new Audio('./audio/ship-sunk-1.mp3');
+function shipSinkPlay() {
+    const rand = Math.floor(Math.random() * 7);
+    shipSink = new Audio(`./audio/ship-sunk-${rand + 1}.mp3`);
+    shipSink.currentTime = 0;
+    shipSink.play();
+}
+// Ship drop audio
+const shipDrop = new Audio('./audio/ship-drop.wav');
+function playShipDrop() {
+    shipDrop.currentTime = 0;
+    shipDrop.play();
+}
+// MISS AUDIO
+const miss1 = new Audio('./audio/miss-1.mp3');
+const miss2 = new Audio('./audio/miss-2.mp3');
+function playMiss() {
+    const rand = Math.floor(Math.random() * 2);
+    miss1.currentTime = 0;
+    miss2.currentTime = 0;
+    if (rand === 1) {
+        miss1.play();
+    } else {
+        miss2.play();
+    }
+}
 // AI REFERENCES
 const aiGameboard = initAiBoard();
 let aiBoardReference;
@@ -79,6 +121,12 @@ icon.addEventListener('click', () => {
         icon.src.toString().includes(volumeIcons.volXWhite.slice(1))) {
         audio.volume = cachedAudioVolume;
         slider.value = cachedAudioVolume * 100;
+        cannon.volume = (slider.value / 100) / 3;
+        miss1.volume = (slider.value / 100) / 3;
+        miss2.volume = (slider.value / 100) / 3;
+        shipDrop.volume = (slider.value / 100);
+        btnClick.volume = (slider.value / 100);
+        shipSink.volume = (slider.value / 100);
         if (hasBattleStarted) {
             if (battleAmbience.paused) {
                 battleAmbience.play();
@@ -100,6 +148,12 @@ icon.addEventListener('click', () => {
         audio.volume = 0;
         slider.value = 0;
         battleAmbience.volume = 0;
+        cannon.volume = 0;
+        miss1.volume = 0;
+        miss2.volume = 0;
+        shipDrop.volume = 0;
+        btnClick.volume = 0;
+        shipSink.volume = 0;
         setVol(audio);
     }
 });
@@ -109,6 +163,20 @@ slider.addEventListener('change', (event) => {
     if (audio.volume >= 0.5) icon.src = volumeIcons.volHighWhite;
     if (audio.volume > 0 && audio.volume < 0.5) icon.src = volumeIcons.volLowWhite;
     if (audio.volume === 0) icon.src = volumeIcons.volXWhite;
+    if (hasBattleStarted) {
+        if (battleAmbience.paused) {
+            battleAmbience.play();
+            battleAmbience.volume = (slider.value / 100) / 4;
+        } else {
+            battleAmbience.volume = (slider.value / 100) / 4;
+        }
+    }
+    cannon.volume = (slider.value / 100) / 3;
+    miss1.volume = (slider.value / 100) / 3;
+    miss2.volume = (slider.value / 100) / 3;
+    shipDrop.volume = (slider.value / 100);
+    btnClick.volume = (slider.value / 100);
+    shipSink.volume = (slider.value / 100);
 });
 // Handles displaying volume input slider
 audioControls.addEventListener('mouseenter', () => {
@@ -377,7 +445,10 @@ function positionShips(parentEl) {
 }
 function getAxisControl() {
     const btn = createButton('Axis: X', ['cabin-btn'], 'btn-toggle-axis');
-    btn.addEventListener('click', toggleAxis);
+    btn.addEventListener('click', () => {
+        playbtnClick();
+        toggleAxis();
+    });
     return btn;
 }
 function toggleAxis() {
@@ -403,13 +474,13 @@ function toggleAxis() {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    // playAudioSequence(greetDialogues, greetText, parentEl)
-    //     .then(() => {
-    getDialogueBtns(parentEl, positionFleetBtns);
-    // })
-    // .catch((error) => {
-    //     console.error('Error during audio playback:', error);
-    // });
+    playAudioSequence(greetDialogues, greetText, parentEl)
+        .then(() => {
+            getDialogueBtns(parentEl, positionFleetBtns);
+        })
+        .catch((error) => {
+            console.error('Error during audio playback:', error);
+        });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
@@ -536,6 +607,7 @@ function getDialogueBtns(parentEl, btnAttributes) {
     btnAttributes.forEach((btn) => {
         const button = createButton(btn.text, btn.classes, btn.id);
         button.addEventListener('click', btn.clickMethod);
+        button.addEventListener('click', playbtnClick);
         box.appendChild(button);
     });
 
@@ -587,6 +659,7 @@ function buildGrid() {
                     event.target.appendChild(draggedEl);
                     updateBoard();
                     setTimeout(checkForUnplacedShips, 500);
+                    playShipDrop();
                 }
             }
         });
@@ -704,13 +777,13 @@ function toShipTransition(timer) {
                 })
                 .then(() => {
                     appendVectors(paraContainer, shipDeckVectorEls);
-                // return new Promise((innerResolve, innerReject) => {
-                //     setTimeout(() => {
-                //         playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
-                //             innerResolve();
-                //         });
-                //     }, 800);
-                // });
+                    return new Promise((innerResolve, innerReject) => {
+                        setTimeout(() => {
+                            playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
+                                innerResolve();
+                            });
+                        }, 800);
+                    });
                 })
                 .then(() => new Promise((innerResolve, innerReject) => {
                     setTimeout(() => {
@@ -767,6 +840,7 @@ function gameDisplay(playerName) {
 
     appendChildren(content, [playerContainer, aiContainer]);
     body.appendChild(content);
+    content.classList.add('cabin-map-display');
 }
 // Method for creating and displayin the AI map
 function displayAiMap() {
@@ -796,26 +870,75 @@ function buildAiGrid(userGameboard) {
             }
         }
         field.addEventListener('click', (event) => {
+            const aiBoard = document.getElementById('ai-gameboard');
+            if (aiBoard.classList.contains('disabled')) {
+                event.preventDefault();
+                return;
+            }
             const turn = getTurn();
             const x = parseInt(event.target.getAttribute('x-cord'));
             const y = parseInt(event.target.getAttribute('y-cord'));
+            tempFieldX = x;
+            tempFieldY = y;
             if (field.classList.contains('field-miss') || field.classList.contains('field-hit') || turn !== 'player') {
                 return false;
             }
 
-            // playerTurn(aiGameboard, x, y);
-            aiGameboard.receiveAttack(x, y);
+            // Player turn
+            let result = aiGameboard.receiveAttack(x, y);
+            aiBoard.classList.add('board-disabled');
             updateAiBoard(document.getElementById('ai-gameboard'));
+            // Handles player click result
+            if (result === 'Ship lost!') {
+                const clickX = event.clientX;
+                const clickY = event.clientY;
+
+                // Displays the ship lost message
+                announceShipLost(clickX, clickY);
+                shipSinkPlay();
+            }
+            if (result === 'Game over!') {
+                alert(`Game over, ${playerName} wins!`);
+            }
+
+
+            // Ai turn
             changeTurn();
             playGame(playerBoard, aiGameboard);
+
+            // Check to see if player lost
+            result = playerBoard.isAllSunk();
+            if (result === true) { alert('YOU LOST!'); }
             setTimeout(() => {
                 updatePlayerBoard(document.getElementById('player-gameboard'));
-            }, 250);
+                aiBoard.classList.remove('board-disabled');
+            }, 550);
         });
         board.appendChild(field);
     });
     return board;
 }
+
+// Plays shot and miss sound upon board click
+document.addEventListener('click', (event) => {
+    // Has ship check
+    const objList = aiGameboard.fields;
+    const x = tempFieldX;
+    const y = tempFieldY;
+    const field = objList.find((obj) => obj.cordX === x && obj.cordY === y);
+
+    // Parent & Target class list check
+    const target = event.target;
+    const parent = target.parentNode;
+    if (parent && parent.id === 'ai-board') {
+        if (!target.classList.contains('field-miss') && !target.classList.contains('field-hit')) {
+            if (target.classList.contains('default-field')) {
+                playCannon();
+                if (!field.hasShip) playMiss();
+            }
+        }
+    }
+});
 
 // Method that updates the AI board
 function updateAiBoard(boardContainer) {
@@ -828,11 +951,9 @@ function updateAiBoard(boardContainer) {
 
 // Method that updated player board
 function updatePlayerBoard(parent) {
-    console.log('Updating player board');
     const board = createDiv([], 'player-board');
     const objList = playerBoard.fields;
 
-    console.log(objList);
     objList.forEach((obj) => {
         const field = document.createElement('div');
         field.classList.add('default-field');
@@ -860,7 +981,7 @@ function updatePlayerBoard(parent) {
     parent.appendChild(board);
 }
 
-
+// Removes all dialogue boxes from an parent element
 function removeDialogueBox(parentEl) {
     const children = parentEl.children;
     for (let i = 0; i < children.length; i++) {
@@ -884,4 +1005,19 @@ function appendVectors(parent, vectors) {
         const img = createImg(src, elClass, id);
         parent.appendChild(img);
     });
+}
+
+// Method for display ship lost text
+function announceShipLost(screenX, screenY) {
+    const container = createDiv('', 'ship-lost-container');
+    const para = createPara('Ship destroyed!', '', 'ship-lost-para');
+    container.style.setProperty('--posX', `${screenX}px`);
+    container.style.setProperty('--posY', `${screenY}px`);
+    container.appendChild(para);
+    container.classList.add('ship-destroyed-float');
+    body.appendChild(container);
+
+    setTimeout(() => {
+        container.remove();
+    }, 3000);
 }
