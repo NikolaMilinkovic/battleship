@@ -23,11 +23,17 @@ export default class Player {
 
         let cordX;
         let cordY;
-        do {
-            cordX = Math.floor(Math.random() * 10);
-            cordY = Math.floor(Math.random() * 10);
-        } while (this.alreadyHitField.some((field) => field[0] === cordX && field[1] === cordY));
+        const checkCords = () => {
+            do {
+                cordX = Math.floor(Math.random() * 10);
+                cordY = Math.floor(Math.random() * 10);
+            } while (this.alreadyHitField.some((field) => field[0] === cordX && field[1] === cordY));
+        };
+        checkCords();
 
+        while (gameboard.receiveAttack(cordX, cordY) === 'land hit') {
+            checkCords();
+        }
         this.alreadyHitField.push([cordX, cordY]);
         gameboard.receiveAttack(cordX, cordY);
     }

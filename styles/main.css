@@ -698,6 +698,7 @@ img#vector-11{
     background-position: center;
     background-image: url('../img/x-mark.png');
     animation: field-hit-animation 0.3s linear forwards;
+    background-color: #7B3825;
 }
 @keyframes field-hit-animation {
     from {
@@ -721,6 +722,24 @@ img#vector-11{
     background-size: cover;
     background-position: center;
     background-image: url('../img/bomb-icon.png');
+}
+.field-with-land{
+    background: #0BDA51;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.tree-1{
+    background-image: url('../img/island-tree-1.png');
+}
+.tree-2{
+    background-image: url('../img/island-tree-2.png');
+}
+.tree-3{
+    background-image: url('../img/island-tree-3.png');
+}
+.tree-4{
+    background-image: url('../img/island-tree-4.png');
 }
 .field-with-ship{
     background-repeat: no-repeat;

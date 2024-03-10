@@ -616,6 +616,15 @@ function getShipTypeImg(type) {
         return 'destroyer';
     }
 }
+function randomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+// ield.classList.add(`${getShipTypeImg(type)}`);
+function getIslandTree(field, cordX, cordY) {
+    const rand = ((cordX * 10 + cordY) % 4) + 1;
+    console.log(rand);
+    field.classList.add(`tree-${rand}`);
+}
 
 function getDragEl() {
     draggedEl = event.target;
@@ -709,6 +718,10 @@ function buildGrid() {
             field.classList.add(`${getShipTypeImg(type)}`);
         }
         if (obj.isShot) field.classList.add('field-shot');
+        if (obj.hasLand) {
+            field.classList.add('field-with-land');
+            getIslandTree(field, obj.cordX, obj.cordY);
+        }
         if (obj.hasMine) field.classList.add('field-with-mine');
         if (obj.shipType !== null) console.log('there is a ship here!');
 
@@ -924,11 +937,17 @@ function buildAiGrid(userGameboard) {
     const objList = userGameboard.fields;
 
     objList.forEach((obj) => {
+        // Basic field settings / cords
         const field = document.createElement('div');
         field.classList.add('default-field');
         field.setAttribute('x-cord', `${obj.cordX}`);
         field.setAttribute('y-cord', `${obj.cordY}`);
 
+        // Update field class
+        if (obj.hasLand) {
+            field.classList.add('field-with-land');
+            getIslandTree(field, obj.cordX, obj.cordY);
+        }
         if (obj.isShot === true) {
             if (obj.hasMine) field.classList.add('field-with-mine');
             if (obj.hasShip) {
@@ -948,15 +967,13 @@ function buildAiGrid(userGameboard) {
             const y = parseInt(event.target.getAttribute('y-cord'));
             tempFieldX = x;
             tempFieldY = y;
-            if (field.classList.contains('field-miss') || field.classList.contains('field-hit') || turn !== 'player') {
+            if (field.classList.contains('field-miss') || field.classList.contains('field-hit') || field.classList.contains('field-with-land') || turn !== 'player') {
                 return false;
             }
 
             // Player turn
 
             let result = aiGameboard.receiveAttack(x, y);
-            result = aiGameboard.isAllSunk();
-            console.log(`Result after isAllSunk call > ${result}`);
             if (result === true) {
                 alert('Game over player won');
             }
@@ -1005,7 +1022,7 @@ document.addEventListener('click', (event) => {
     const target = event.target;
     const parent = target.parentNode;
     if (parent && parent.id === 'ai-board') {
-        if (!target.classList.contains('field-miss') && !target.classList.contains('field-hit')) {
+        if (!target.classList.contains('field-miss') && !target.classList.contains('field-hit') && !target.classList.contains('field-with-land')) {
             if (target.classList.contains('default-field')) {
                 playCannon();
                 if (!field.hasShip) playMiss();
@@ -1035,6 +1052,10 @@ function updatePlayerBoard(parent) {
         field.setAttribute('y-cord', `${obj.cordY}`);
 
         if (obj.hasMine) field.classList.add('field-with-mine');
+        if (obj.hasLand) {
+            field.classList.add('field-with-land');
+            getIslandTree(field, obj.cordX, obj.cordY);
+        }
         if (obj.hasShip === true) {
             const type = obj.shipType;
             field.classList.add('field-with-ship');

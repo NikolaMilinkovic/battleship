@@ -102,6 +102,30 @@ export default class Gameboard {
     }
 
 
+    placeIslands(amount) {
+        let islandsPlaced = 0;
+        function randomInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        while (islandsPlaced < amount) {
+            const x = randomInteger(0, 9);
+            const y = randomInteger(0, 9);
+
+            for (let i = 0; i < 20; i++) {
+                const islandX = x + randomInteger(-2, 2);
+                const islandY = y + randomInteger(-2, 2);
+                const field = this.fields.find((obj) => obj.cordX === islandX && obj.cordY === islandY);
+                if (islandX >= 0 && islandX <= 9 && islandY >= 0 && islandY <= 9) {
+                    if (!field.hasShip && !field.hasLand && !field.hasMine) {
+                        field.hasLand = true;
+                    }
+                }
+            }
+            islandsPlaced++;
+        }
+    }
+
+
     // shipType kako bi uzeli size, clickValue > vrednost koju dobijamo kada kliknemo da drag brod
     // Div koji predstavlja brod ima u zavisnosti od duzine isti broj divova unutra, u zavisnosti od
     // toga da li smo kliknuli na pocetak ili kraj drop se gleda drugacije, ako je klik skroz levo
@@ -129,6 +153,7 @@ export default class Gameboard {
             if (!field) return false;
             if (field.hasShip === true) return false;
             if (field.hasMine === true) return false;
+            if (field.hasLand === true) return false;
 
             this.shipPlacementFields.push(field);
         }
@@ -142,6 +167,7 @@ export default class Gameboard {
             if (!field) return false;
             if (field.hasShip === true) return false;
             if (field.hasMine === true) return false;
+            if (field.hasLand === true) return false;
 
             this.shipPlacementFields.push(field);
         }
@@ -164,6 +190,7 @@ export default class Gameboard {
     receiveAttack(cordX, cordY) {
         const field = this.fields.find((obj) => obj.cordX === cordX && obj.cordY === cordY);
         if (field.isShot) return false;
+        if (field.hasLand) return 'land hit';
 
         if (field.hasShip === true) {
             field.isShot = true;
