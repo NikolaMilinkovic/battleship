@@ -698,7 +698,7 @@ img#vector-11{
     background-position: center;
     background-image: url('../img/x-mark.png');
     animation: field-hit-animation 0.3s linear forwards;
-    background-color: #7B3825;
+    background-color: #d35e3e;
 }
 @keyframes field-hit-animation {
     from {
@@ -709,12 +709,7 @@ img#vector-11{
     }
 }
 .field-miss{
-    /* z-index: 2;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-image: url('../img/x-mark.png'); */
-    background-color: #7B3825;
+    background-color: #d35e3e;
 }
 
 .field-with-mine{

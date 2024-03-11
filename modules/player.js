@@ -1,3 +1,5 @@
+/* eslint-disable no-loop-func */
+/* eslint-disable max-len */
 import Gameboard from './gameboard.js';
 
 export default class Player {
@@ -18,23 +20,40 @@ export default class Player {
         gameboard.receiveAttack(cordX, cordY);
     }
 
-    randomAttack(gameboard) {
+    randomAttack(gameboard, boardShotFields) {
+        console.log(`alreadyHitField length: ${this.alreadyHitField.length}`);
         if (this.alreadyHitField.length === 100) return;
+        boardShotFields.forEach((obj) => {
+            if (!this.alreadyHitField.find((field) => field[0] === obj[0] && field[1] === obj[1])) {
+                this.alreadyHitField.push(obj);
+            }
+        });
+        console.log(`alreadyHitField length after merge: ${this.alreadyHitField.length}`);
 
         let cordX;
         let cordY;
+        let result;
         const checkCords = () => {
             do {
                 cordX = Math.floor(Math.random() * 10);
                 cordY = Math.floor(Math.random() * 10);
-            } while (this.alreadyHitField.some((field) => field[0] === cordX && field[1] === cordY));
+            } while (this.alreadyHitField.find((field) => field[0] === cordX && field[1] === cordY));
         };
         checkCords();
 
-        while (gameboard.receiveAttack(cordX, cordY) === 'land hit') {
+        result = gameboard.receiveAttack(cordX, cordY);
+        while (result === 'land hit' || result === false) {
             checkCords();
+            result = gameboard.receiveAttack(cordX, cordY);
         }
         this.alreadyHitField.push([cordX, cordY]);
-        gameboard.receiveAttack(cordX, cordY);
+
+        console.log(result);
+        if (result === 'hit!') {
+            console.log('Random attack > got from receiveAttack > HIT');
+            console.log(`returning x: ${cordX}, y: ${cordY}`);
+            result = '';
+            return [cordX, cordY];
+        }
     }
 }

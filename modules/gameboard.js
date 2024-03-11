@@ -21,6 +21,10 @@ export default class Gameboard {
         this.shipPlacementHistory = [];
     }
 
+    getShotFields() {
+        return this.shotField;
+    }
+
     // Innitializes gameboard fields as objects and pushes them to this.fields arr
     init() {
         this.fields = [];
@@ -94,7 +98,6 @@ export default class Gameboard {
             const y = randomInteger(0, 9);
             const field = this.fields.find((obj) => obj.cordX === x && obj.cordY === y);
             if (!field.hasShip && !field.hasLand && !field.hasMine) {
-                console.log(`placing mine at x:${x}, y:${y}`);
                 field.hasMine = true;
                 minesPlaced++;
             }
@@ -196,18 +199,16 @@ export default class Gameboard {
             field.isShot = true;
             const ship = this.ships[field.shipType];
             ship.hit();
-            // console.log('Logging all ships current HP:');
-            // Object.values(this.ships).forEach((shipy) => {
-            //     shipy.getHealth();
-            // });
-
 
             if (this.isAllSunk()) {
                 return 'Game over!';
             }
             if (ship.isSunk()) return 'Ship lost!';
+            console.log('Just hit a ship!');
             return 'hit!';
         }
+
+        // Handles mines logic
         if (field.hasMine === true && !field.isShot) {
             field.isShot = true;
             const mineCalc = [[0, 1], [0, -1], [1, 0], [-1, 0]];

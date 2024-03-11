@@ -419,10 +419,10 @@ function randomizeFleet() {
             return getRandomizedMap(parentEl);
         })
         .then(() => {
-            // playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
+            playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
             parentEl.appendChild(playerBoardReference);
             playerBoardReference.classList.add('cabin-map-display');
-            toShipTransition(1000); // Needs to be 8000
+            toShipTransition(8000); // Needs to be 8000
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
@@ -525,13 +525,13 @@ function toggleAxis() {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    // playAudioSequence(greetDialogues, greetText, parentEl)
-    //     .then(() => {
-    getDialogueBtns(parentEl, positionFleetBtns);
-    // })
-    // .catch((error) => {
-    //     console.error('Error during audio playback:', error);
-    // });
+    playAudioSequence(greetDialogues, greetText, parentEl)
+        .then(() => {
+            getDialogueBtns(parentEl, positionFleetBtns);
+        })
+        .catch((error) => {
+            console.error('Error during audio playback:', error);
+        });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl) {
@@ -622,7 +622,6 @@ function randomInteger(min, max) {
 // ield.classList.add(`${getShipTypeImg(type)}`);
 function getIslandTree(field, cordX, cordY) {
     const rand = ((cordX * 10 + cordY) % 4) + 1;
-    console.log(rand);
     field.classList.add(`tree-${rand}`);
 }
 
@@ -723,7 +722,7 @@ function buildGrid() {
             getIslandTree(field, obj.cordX, obj.cordY);
         }
         if (obj.hasMine) field.classList.add('field-with-mine');
-        if (obj.shipType !== null) console.log('there is a ship here!');
+        if (obj.shipType !== null);
 
         field.addEventListener('dragover', (event) => {
             event.preventDefault();
@@ -759,10 +758,10 @@ function checkForUnplacedShips() {
 
         // Continues cabin dialogue
         setTimeout(() => {
-            // playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
-            //     .then(() => {
-            toShipTransition(200);
-            // });
+            playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
+                .then(() => {
+                    toShipTransition(200);
+                });
         }, 750);
     }
 }
@@ -859,9 +858,9 @@ function toShipTransition(timer) {
                     appendVectors(paraContainer, shipDeckVectorEls);
                     return new Promise((innerResolve, innerReject) => {
                         setTimeout(() => {
-                            // playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
-                            innerResolve();
-                            // });
+                            playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
+                                innerResolve();
+                            });
                         }, 800);
                     });
                 })
