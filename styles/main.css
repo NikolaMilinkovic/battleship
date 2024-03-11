@@ -1026,8 +1026,34 @@ img#vector-11{
         opacity: 0;
     }
 }
+.game-content-fade{
+    animation: game-fade-out 1s linear forwards;
+}
 
-
+@keyframes game-fade-out {
+    from{
+        opacity: 1;
+    }
+    to{
+        opacity: 0;
+    }
+}
+#after-game-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+    border-radius: 10px;
+    border: 2px solid #560F15;
+    padding: 4rem;
+}
+#hero-announcement-message{
+    color: #560F15;
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+}
 
 
 

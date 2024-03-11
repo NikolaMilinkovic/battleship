@@ -159,6 +159,16 @@ function pauseAudio(audioEl) {
     }
     if (volume <= 0) audio.pause();
 }
+function quietDownAudio(audioEl) {
+    let timer = 0;
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+            audioEl.volume -= 0.1;
+        }, timer);
+        timer += 600;
+    }
+    if (audioEl.volume <= 0) audio.pause();
+}
 
 // Handles Muting and Unmuting the sound for application
 icon.addEventListener('click', () => {
@@ -465,10 +475,10 @@ function randomizeFleet() {
             return getRandomizedMap(parentEl);
         })
         .then(() => {
-            playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
+            // playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
             parentEl.appendChild(playerBoardReference);
             playerBoardReference.classList.add('cabin-map-display');
-            toShipTransition(8000); // Needs to be 8000
+            toShipTransition(1000); // Needs to be 8000
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
@@ -583,13 +593,13 @@ function toggleAxis() {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    playAudioSequence(greetDialogues, greetText, parentEl)
-        .then(() => {
-            getDialogueBtns(parentEl, positionFleetBtns);
-        })
-        .catch((error) => {
-            console.error('Error during audio playback:', error);
-        });
+    // playAudioSequence(greetDialogues, greetText, parentEl)
+    //     .then(() => {
+    getDialogueBtns(parentEl, positionFleetBtns);
+    // })
+    // .catch((error) => {
+    //     console.error('Error during audio playback:', error);
+    // });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl, setClass) {
@@ -852,10 +862,10 @@ function checkForUnplacedShips() {
         // Continues cabin dialogue
         setTimeout(() => {
             activeCompliment.pause();
-            playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
-                .then(() => {
-                    toShipTransition(200);
-                });
+            // playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
+            //     .then(() => {
+            toShipTransition(200);
+            // });
         }, 750);
     }
 }
@@ -952,9 +962,9 @@ function toShipTransition(timer) {
                     appendVectors(paraContainer, shipDeckVectorEls);
                     return new Promise((innerResolve, innerReject) => {
                         setTimeout(() => {
-                            playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
-                                innerResolve();
-                            });
+                            // playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
+                            innerResolve();
+                            // });
                         }, 800);
                     });
                 })
@@ -1067,8 +1077,9 @@ function buildAiGrid(userGameboard) {
             // Player turn
 
             let result = aiGameboard.receiveAttack(x, y);
+            // Handle player win instance
             if (result === true) {
-                alert('Game over player won');
+                playerWinInstance();
             }
             aiBoard.classList.add('board-disabled');
             updateAiBoard(document.getElementById('ai-gameboard'), aiGameboard);
@@ -1231,4 +1242,69 @@ function updateHelpInfoBox(e) {
     const userY = e.clientY;
     container.style.setProperty('--posX', `${userX}px`);
     container.style.setProperty('--posY', `${userY}px`);
+}
+
+const winText = [
+    {
+        text: 'Great work captain!\nWith all of those ship sunk the enemy is fleeing in disarray.\nThe day is ours!',
+        character: 'Jolly Roger Jack',
+    },
+];
+const winAudio = [
+    './audio/victory-audio.mp3',
+];
+const loseText = [
+    {
+        text: 'Great work captain!\nWith all of those ship sunk the enemy is fleeing in disarray.\nThe day is ours!',
+        character: 'Jolly Roger Jack',
+    },
+];
+
+const winLoseAudio = [
+    './audio/how-to-place-ship.mp3',
+    './audio/how-to-toggle-axis.mp3',
+    './audio/beware-of-mines.mp3',
+];
+
+function playerWinInstance() {
+    fadeAndRemoveGameContent()
+        .then(() => {
+            const dialogueContainer = document.getElementById('dialogue-container');
+            showPirate();
+            quietDownAudio(battleAmbience);
+            playAudioSequence(winAudio, winText, dialogueContainer)
+                .then(() => {
+                    clearElChildren(dialogueContainer);
+                    getHeroMessage('win');
+                });
+        });
+}
+function fadeAndRemoveGameContent() {
+    return new Promise((resolve, reject) => {
+        const gameContent = document.getElementById('game-content');
+        gameContent.classList.add('game-content-fade');
+        setTimeout(() => {
+            gameContent.remove();
+            resolve();
+        }, 2000);
+    });
+}
+function getHeroMessage(win) {
+    const dialogueContainer = document.getElementById('dialogue-container');
+    let text = '';
+    if (win === 'win') {
+        text = `Congratulations ${playerName},<br>You win!`;
+    } else {
+        text = `Your fleet is sunk.<br>${playerName}You lost!`;
+    }
+    const container = createDiv('', 'after-game-container');
+    const hero = createPara(text, '', 'hero-announcement-message');
+    container.appendChild(hero);
+    dialogueContainer.appendChild(container);
+    dialogueContainer.classList.add('cabin-map-display');
+}
+function showPirate() {
+    const pirate = document.getElementById('vector-11');
+    pirate.classList.remove('fade-out-remove');
+    pirate.classList.remove('move-deck');
 }
