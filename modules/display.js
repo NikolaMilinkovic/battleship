@@ -12,7 +12,7 @@ import { enablePara, disablePara } from './para.js';
 import {
     getVolumeSlider, getIcon, getAudioControls, getVolumeIcons,
 } from './audioControls.js';
-
+// playAudioSequence reminder
 
 const { body } = document;
 const form = document.getElementById('form');
@@ -27,10 +27,17 @@ let playerBoard;
 let playerBoardReference;
 let axis = 'x';
 let hasBattleStarted = false;
+let showInfoBox = false;
+const helpInformations = {
+    infoSeaMine: 'Sea mine, when hit blows up damaging everything in the fields adjacent to it.<br> We should avoid placing ships next to it!',
+    infoLand: 'Field representing the land, your ships can\'t go onto land..<br> Right?!',
+};
 // Temp board field click position
 let tempFieldX;
 let tempFieldY;
 // CANNON AUDIO
+const seaMineHelp = new Audio('./audio/cannon-fire-2s.mp3');
+const landHelp = new Audio('./audio/cannon-fire-2s.mp3');
 const cannon = new Audio('./audio/cannon-fire-2s.mp3');
 function playCannon() {
     cannon.volume = (slider.value / 100) / 4;
@@ -55,6 +62,7 @@ let shipSink = new Audio('./audio/ship-sunk-1.mp3');
 function shipSinkPlay() {
     const rand = Math.floor(Math.random() * 7);
     shipSink = new Audio(`./audio/ship-sunk-${rand + 1}.mp3`);
+    shipSink.playbackRate = 1.1;
     shipSink.volume = (slider.value / 100);
     shipSink.currentTime = 0;
     shipSink.play();
@@ -96,14 +104,22 @@ battleAmbience.volume = 0.15;
 battleAmbience.loop = true;
 // COMPLIMENT AUDIO ROLL
 let complimentAudio = new Audio('./audio/compliment-1.mp3');
+let activeCompliment = complimentAudio;
 complimentAudio.volume = 0.15;
 function rollCompliment() {
     const rand = Math.floor(Math.random() * 6);
+
     complimentAudio = new Audio(`./audio/compliment-${rand + 1}.mp3`);
     complimentAudio.volume = (slider.value / 100);
     complimentAudio.currentTime = 0;
     const roll = Math.floor(Math.random() * 6);
-    if (roll <= 3) complimentAudio.play();
+    if (roll <= 3) {
+        if (activeCompliment) {
+            activeCompliment.pause();
+        }
+        complimentAudio.play();
+    }
+    activeCompliment = complimentAudio;
 }
 
 // Prevents the form default behvaiour
@@ -393,6 +409,25 @@ const battleStartAudio = [
     './audio/pirate-battle-1.mp3',
     './audio/pirate-battle-2.mp3',
 ];
+const shipPlacingHelpText = [
+    {
+        text: 'Click, drag and drop the ship on to the map to lock in its position.',
+        character: 'How to place a ship:',
+    },
+    {
+        text: 'Use the Axis button to change the axis of the ship or press \'space\' to toggle the axis.',
+        character: 'How to rotate axis:',
+    },
+    {
+        text: 'Be careful not to place ships too close to those pesky sea mines. When they explode they will damage the fields next to them.',
+        character: 'Beware of mines!',
+    },
+];
+const shipPlacingHelpAudio = [
+    './audio/how-to-place-ship.mp3',
+    './audio/how-to-toggle-axis.mp3',
+    './audio/beware-of-mines.mp3',
+];
 
 // Player fleet organization path
 function planFleet() {
@@ -403,10 +438,21 @@ function planFleet() {
             playerBoard = initPlayerBoard(playerName);
             displayMap(parentEl);
             positionShips(parentEl);
+            const helpContainer = planFleetHelpContainer(parentEl);
+            playAudioSequence(shipPlacingHelpAudio, shipPlacingHelpText, helpContainer, 'plan-fleet-blob')
+                .then(() => {
+                    helpContainer.classList.add('plan-fleet-help-container');
+                });
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
         });
+}
+// Creates the parent el for help notes
+function planFleetHelpContainer(parentEl) {
+    const container = createDiv('', 'plan-fleet-help-container');
+    parentEl.appendChild(container);
+    return container;
 }
 
 // Randomize path
@@ -438,6 +484,7 @@ function transitionToShip(timer) {
             body.appendChild(div);
 
             setTimeout(() => {
+                document.removeEventListener('keydown', axisKeydownToggle);
                 const text = document.createElement('p');
                 text.setAttribute('id', 'following-day-text');
                 text.innerHTML = 'The following day...';
@@ -459,6 +506,7 @@ function displayMap(parentEl) {
     pBoardContainer.setAttribute('id', 'player-board-container');
     // playerBoard.init();
     const grid = buildGrid();
+    grid.classList.add('tooltip-class-parent');
     pBoardContainer.appendChild(grid);
     parentEl.appendChild(pBoardContainer);
     pBoardContainer.classList.add('cabin-map-display');
@@ -500,7 +548,17 @@ function getAxisControl() {
         playbtnClick();
         toggleAxis();
     });
+
+    document.addEventListener('keydown', axisKeydownToggle);
     return btn;
+}
+function axisKeydownToggle(event) {
+    if (event.code === 'Space') {
+        event.preventDefault();
+        playbtnClick();
+        toggleAxis();
+        console.log('toggling axis');
+    }
 }
 function toggleAxis() {
     const btn = document.getElementById('btn-toggle-axis');
@@ -534,18 +592,25 @@ function startCabinDialogue() {
         });
 }
 // GENERAL method for playing audio files in sequence
-function playAudioSequence(audioFiles, textFiles, parentEl) {
+function playAudioSequence(audioFiles, textFiles, parentEl, setClass) {
     return new Promise((resolve, reject) => {
         let i = 0;
         function playNextAudio() {
             audio = new Audio(audioFiles[i]);
+            audio.playbackRate = 1.15;
             setVol(audio);
-            getDialogueBox(parentEl, textFiles[i]);
+            const box = getDialogueBox(parentEl, textFiles[i]);
             audio.addEventListener('ended', () => {
                 i++;
                 if (i < audioFiles.length) {
                     playNextAudio();
+                    if (setClass) {
+                        box.classList.add(`${setClass}`);
+                    }
                 } else {
+                    if (setClass) {
+                        box.classList.add(`${setClass}`);
+                    }
                     resolve();
                 }
             });
@@ -654,6 +719,7 @@ function getDialogueBox(parentEl, textFile) {
     box.appendChild(para);
     parentEl.appendChild(box);
     printText(para, charName, textFile);
+    return box;
 }
 // Prints out text in the dialogue box
 function printText(para, charName, textFile) {
@@ -701,6 +767,7 @@ function clearElChildren(parent) {
 }
 // ==========================[\OTHER GENERAL METHODS]==========================
 
+// Method for building player grid
 function buildGrid() {
     const board = createDiv([], 'player-board');
 
@@ -720,8 +787,12 @@ function buildGrid() {
         if (obj.hasLand) {
             field.classList.add('field-with-land');
             getIslandTree(field, obj.cordX, obj.cordY);
+            helpEventListeners(field, helpInformations.infoLand);
         }
-        if (obj.hasMine) field.classList.add('field-with-mine');
+        if (obj.hasMine) {
+            field.classList.add('field-with-mine');
+            helpEventListeners(field, helpInformations.infoSeaMine);
+        }
         if (obj.shipType !== null);
 
         field.addEventListener('dragover', (event) => {
@@ -737,6 +808,7 @@ function buildGrid() {
                     updateBoard();
                     setTimeout(checkForUnplacedShips, 1000);
                     playShipDrop();
+                    activeCompliment.pause();
                     rollCompliment();
                 }
             }
@@ -746,8 +818,28 @@ function buildGrid() {
     return board;
 }
 
+// General method for displaying help popup message
+function helpEventListeners(field, text) {
+    field.addEventListener('mouseenter', (e) => {
+        showInfoBox = true;
+        helpInfoBox(e, text);
+    });
+    field.addEventListener('mousemove', (e) => {
+        if (document.getElementById('help-box-container')) {
+            updateHelpInfoBox(e);
+        }
+    });
+    field.addEventListener('mouseleave', () => {
+        if (document.getElementById('help-box-container')) {
+            document.getElementById('help-box-container').remove();
+        }
+        showInfoBox = false;
+    });
+}
+
 function checkForUnplacedShips() {
     const shipContainer = document.getElementById('place-ship-container');
+    const planShipHelpContainer = document.getElementById('plan-fleet-help-container');
     if (shipContainer.childNodes.length === 1) {
         const parentEl = document.getElementById('dialogue-container');
         const boardContainer = document.querySelector('.player-board-container');
@@ -755,9 +847,11 @@ function checkForUnplacedShips() {
         shipContainer.classList.remove('cabin-map-display');
         boardContainer.classList.add('cabin-map-remove');
         shipContainer.classList.add('cabin-map-remove');
+        planShipHelpContainer.classList.add('cabin-map-remove');
 
         // Continues cabin dialogue
         setTimeout(() => {
+            activeCompliment.pause();
             playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
                 .then(() => {
                     toShipTransition(200);
@@ -1115,4 +1209,26 @@ function announceShipLost(screenX, screenY) {
     setTimeout(() => {
         container.remove();
     }, 3000);
+}
+
+// Displays sea mine info box when user hovers the sea mine field
+function helpInfoBox(e, infoText) {
+    if (showInfoBox !== true) return;
+    const container = createDiv('', 'help-box-container');
+    const para = createPara(`${infoText}`, '', '');
+    const userX = e.clientX;
+    const userY = e.clientY;
+    container.style.setProperty('--posX', `${userX}px`);
+    container.style.setProperty('--posY', `${userY}px`);
+    container.appendChild(para);
+    container.classList.add('display-help-box-animation');
+    body.appendChild(container);
+}
+// Updates the position of mine information container
+function updateHelpInfoBox(e) {
+    const container = document.getElementById('help-box-container');
+    const userX = e.clientX;
+    const userY = e.clientY;
+    container.style.setProperty('--posX', `${userX}px`);
+    container.style.setProperty('--posY', `${userY}px`);
 }

@@ -33,8 +33,6 @@ function moveBackground(e) {
 }
 
 (function () {
-    const { body } = document;
-
     // Turns off parallax for devices with a certain width
     if (window.matchMedia('(max-width: 600px)').matches) enableParallax = false;
     if (enableParallax) document.addEventListener('mousemove', moveBackground);

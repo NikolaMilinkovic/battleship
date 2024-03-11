@@ -513,16 +513,18 @@ html, body {
         transform: translateX(0px);
     }
 }
-.ship-cabin-dialogue-container{
+#dialogue-container.ship-cabin-dialogue-container{
+    scale: 1;
     display: flex;
     width: 100%;
     position: absolute;
-    top: 10vh;
+    top: 8vh;
     left: calc(50vw - 250px);
     flex-direction: column;
     align-self: center;
     justify-self: center;
     max-width: 500px;
+    height: min-content;
 }
 .dialogue-blob{
     display: flex;
@@ -650,7 +652,9 @@ img#vector-11{
 }
 #place-ship-container{
     display: flex;
+    padding-right: 180px;
     width: 100%;
+    min-height: 100px;
     max-height: fit-content;
     flex-wrap: wrap;
     background-image: linear-gradient(to right, #560F15 0%, #7B3825  51%, #300509  100%);
@@ -659,13 +663,13 @@ img#vector-11{
     gap: 1rem;
     position: relative;
 }
-
 #btn-toggle-axis{
     position: absolute;
-    left: 520px;
-    top: 0px;
+    left: 380px;
+    top: 20px;
     padding: 1rem;
-    border: 4px solid #560F15;
+    border: 2px solid #560F15;
+    background-image: linear-gradient(to right, #7B3825 0%, #560F15  51%, #300509  100%);
 }
 .place-ship{
     display: flex;
@@ -696,9 +700,9 @@ img#vector-11{
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
-    background-image: url('../img/x-mark.png');
+    background-image: url('../img/x-mark-w.png');
     animation: field-hit-animation 0.3s linear forwards;
-    background-color: #d35e3e;
+    background-color: #3E1C30;
 }
 @keyframes field-hit-animation {
     from {
@@ -709,20 +713,25 @@ img#vector-11{
     }
 }
 .field-miss{
-    background-color: #d35e3e;
+    background-color: #3E1C30;
 }
-
 .field-with-mine{
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     background-image: url('../img/bomb-icon.png');
 }
+#player-board > .field-with-mine:hover {
+    transform: scale(1.1);
+}
 .field-with-land{
     background: #0BDA51;
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+}
+#player-board > .field-with-land:hover {
+    transform: scale(1.1);
 }
 .tree-1{
     background-image: url('../img/island-tree-1.png');
@@ -756,7 +765,65 @@ img#vector-11{
 .destroyer{
     background-image: url('../img/field-ships/ship-02.png');
 }
-
+#help-box-container{
+    position: absolute;
+    z-index: 5;
+    font-weight: bold;
+    width: 250px;
+    font-size: 16px;
+    padding: 16px;
+    border: 2px solid #560F15;
+    --posX: 0px;
+    --posY: 0px;
+    transform: translate(calc(var(--posX) + 15px), calc(var(--posY) - 130px));
+    background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+    border-radius: 10px;
+}
+.display-help-box-animation{
+    animation: display-help-box-animation 0.25s linear forwards;
+}
+@keyframes display-help-box-animation {
+    from {
+        transform: translate(calc(var(--posX) + 15px), calc(var(--posY) - 130px)) scale(0.2);
+    }
+    80%{
+        transform: translate(calc(var(--posX) + 15px), calc(var(--posY) - 130px)) scale(1.1);
+    }
+    to {
+        transform: translate(calc(var(--posX) + 15px), calc(var(--posY) - 130px)) scale(1);
+    }
+}
+#plan-fleet-help-container{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 500px;
+    /* height: 100%; */
+    box-sizing: border-box;
+    align-self: center;
+    align-content: center;
+    padding: 0px 1rem;
+    /* z-index: -1; */
+}
+.plan-fleet-help-container{
+    pointer-events: none;
+}
+.plan-fleet-blob{
+    pointer-events: none;
+    margin-bottom: 0px;
+    animation: move-help-blob 1s ease-in forwards;
+}
+@keyframes move-help-blob {
+    from {
+        margin-left: 0px;
+    }
+    to{
+        margin-left: 520px;
+    }
+}
 /* \PLAYER BOARD AND SHIP PLACEMENT */
 
 

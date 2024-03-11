@@ -114,7 +114,7 @@ export default class Gameboard {
             const x = randomInteger(0, 9);
             const y = randomInteger(0, 9);
 
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 15; i++) {
                 const islandX = x + randomInteger(-2, 2);
                 const islandY = y + randomInteger(-2, 2);
                 const field = this.fields.find((obj) => obj.cordX === islandX && obj.cordY === islandY);
