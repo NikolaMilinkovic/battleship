@@ -95,6 +95,8 @@ function playMiss() {
         miss2.play();
     }
 }
+
+
 // AI REFERENCES
 const aiGameboard = initAiBoard();
 let aiBoardReference;
@@ -163,12 +165,18 @@ function quietDownAudio(audioEl) {
     let timer = 0;
     for (let i = 0; i < 10; i++) {
         setTimeout(() => {
+            if (audioEl.volume <= 0) {
+                audioEl.pause();
+                return;
+            }
             audioEl.volume -= 0.1;
         }, timer);
         timer += 600;
     }
-    if (audioEl.volume <= 0) audio.pause();
 }
+const piratesCelebrating = new Audio('./audio/pirates-celebrating.mp3');
+piratesCelebrating.volume = (slider.value / 100) / 2;
+piratesCelebrating.loop = true;
 
 // Handles Muting and Unmuting the sound for application
 icon.addEventListener('click', () => {
@@ -177,6 +185,7 @@ icon.addEventListener('click', () => {
         audio.volume = cachedAudioVolume;
         slider.value = cachedAudioVolume * 100;
         complimentAudio.volume = (slider.value / 100);
+        piratesCelebrating.volume = (slider.value / 100) / 4;
         cannon.volume = (slider.value / 100) / 4;
         bombExplosion.volume = (slider.value / 100) / 4;
         miss1.volume = (slider.value / 100) / 3;
@@ -216,6 +225,7 @@ icon.addEventListener('click', () => {
         fightMusic.volume = 0;
         complimentAudio.volume = 0;
         cannon.volume = 0;
+        piratesCelebrating.volume = 0;
         bombExplosion.volume = 0;
         miss1.volume = 0;
         miss2.volume = 0;
@@ -249,6 +259,7 @@ slider.addEventListener('change', (event) => {
     }
     bombExplosion.volume = (slider.value / 100) / 4;
     cannon.volume = (slider.value / 100) / 4;
+    piratesCelebrating.volume = (slider.value / 100) / 4;
     miss1.volume = (slider.value / 100) / 3;
     miss2.volume = (slider.value / 100) / 3;
     shipDrop.volume = (slider.value / 100);
@@ -1065,6 +1076,7 @@ function buildAiGrid(userGameboard) {
                 event.preventDefault();
                 return;
             }
+            playerWinInstance();
             const turn = getTurn();
             const x = parseInt(event.target.getAttribute('x-cord'));
             const y = parseInt(event.target.getAttribute('y-cord'));
@@ -1079,7 +1091,7 @@ function buildAiGrid(userGameboard) {
             let result = aiGameboard.receiveAttack(x, y);
             // Handle player win instance
             if (result === true) {
-                playerWinInstance();
+
             }
             aiBoard.classList.add('board-disabled');
             updateAiBoard(document.getElementById('ai-gameboard'), aiGameboard);
@@ -1093,7 +1105,7 @@ function buildAiGrid(userGameboard) {
                 shipSinkPlay();
             }
             if (result === 'Game over!') {
-                alert(`Game over, ${playerName} wins!`);
+                playerWinInstance();
             }
 
 
@@ -1272,8 +1284,10 @@ function playerWinInstance() {
             const dialogueContainer = document.getElementById('dialogue-container');
             showPirate();
             quietDownAudio(battleAmbience);
+
             playAudioSequence(winAudio, winText, dialogueContainer)
                 .then(() => {
+                    piratesCelebrating.play();
                     clearElChildren(dialogueContainer);
                     getHeroMessage('win');
                 });
