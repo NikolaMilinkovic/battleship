@@ -21,7 +21,78 @@ const paraContainer = document.getElementById('parallax-container');
 const btnPlay = document.getElementById('btn-play');
 const inputName = document.getElementById('input-player');
 btnPlay.addEventListener('click', play);
+
+// Drag and drop variables & document event listeners
+let dragElParent;
 let draggedEl;
+let startX;
+let startY;
+document.addEventListener('touchmove', onTouchMove, { passive: false });
+document.addEventListener('touchend', onTouchEnd);
+// \ Drag and drop variables & document event listeners
+// Drag and drop methods for mobile devices
+
+// Prevents default, caches touch, gets user x and y, calls getDragEl caching dragged el
+function onTouchStart(event) {
+    event.preventDefault();
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    getDragEl(event);
+}
+
+// Prevents default. If there is dragged el cache touch, calculate new x and y positions
+// apply transform to the dragged element.
+function onTouchMove(event) {
+    event.preventDefault();
+    if (dragElParent) {
+        const touch = event.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+
+        dragElParent.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    }
+}
+
+// Removes transform attribute from dragged element,
+function onTouchEnd(event) {
+    if (dragElParent) {
+        dragElParent.style.transform = 'none';
+        const touch = event.changedTouches[0];
+        const targetField = document.elementFromPoint(touch.clientX, touch.clientY);
+        const shipType = event.target.getAttribute('shiptype');
+        const clickValue = event.target.getAttribute('clickvalue');
+        console.log(shipType);
+        console.log(clickValue);
+        setClickValue(clickValue);
+        setShipType(shipType);
+        if (targetField && targetField.classList.contains('default-field')) {
+            // targetField.appendChild(dragElParent);
+            fieldDropElHandler(event, targetField);
+        }
+    }
+    dragElParent = null;
+}
+
+// Handles drop logic for mobile devices
+function fieldDropElHandler(targetField) {
+    if (draggedEl) {
+        const x = parseInt(targetField.getAttribute('x-cord'));
+        const y = parseInt(targetField.getAttribute('y-cord'));
+        console.log(`Getting target x: ${x}, y: ${y}`);
+        if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
+            targetField.appendChild(dragElParent);
+            updateBoard();
+            setTimeout(checkForUnplacedShips, 1000);
+            playShipDrop();
+            activeCompliment.pause();
+            rollCompliment();
+        }
+    }
+}
+
+// \ Drag and drop methods for mobile devices
+
 let playerName;
 let playerBoard;
 let playerBoardReference;
@@ -683,6 +754,7 @@ function createShip(size, type) {
         dragCursorDefault();
     });
     ship.addEventListener('drag', dragCursorGrabbed);
+    ship.addEventListener('touchstart', onTouchStart);
     return ship;
 }
 function getShipTypeImg(type) {
@@ -711,8 +783,9 @@ function getIslandTree(field, cordX, cordY) {
     field.classList.add(`tree-${rand}`);
 }
 
-function getDragEl() {
+function getDragEl(event) {
     draggedEl = event.target;
+    dragElParent = event.target.parentElement;
 }
 function dropEl() {
     draggedEl = null;
@@ -1322,3 +1395,4 @@ function showPirate() {
     pirate.classList.remove('fade-out-remove');
     pirate.classList.remove('move-deck');
 }
+
