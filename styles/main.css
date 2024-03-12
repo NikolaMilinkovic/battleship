@@ -1252,7 +1252,7 @@ img#vector-11{
         animation: show-dialogue-box 700ms;
     } 
     .dialogue-box-text{
-        font-size: 12px;
+        font-size: 14px;
     }
     .char-name-label{
         font-size: 14px;
@@ -1326,6 +1326,12 @@ img#vector-11{
     }
     #vector-2 {
         display: none;
+    }
+    #following-day-text{
+        color: white;
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
     }
 }
 
