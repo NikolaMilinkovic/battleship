@@ -953,6 +953,7 @@ img#vector-11{
     color: white;
     font-size: 56px;
     font-weight: bold;
+    text-align: center;
 }
 .zoom-fade-in-out{
     animation: zoom-and-fade-out 3.5s linear forwards;
@@ -1213,19 +1214,20 @@ img#vector-11{
 
 
 @media screen and (max-width: 600px) and (orientation: portrait) {
-    body{
+    body,html{
         display: flex;
         align-items: center;
         justify-content: center;
-        overflow: auto;
+        overflow: hidden;
+        max-height: 100vh;
+        max-width: 100vw;
+        overflow: hidden;
     }
     #dialogue-container.ship-cabin-dialogue-container{
         display: flex;
         flex-direction: column;
-        --max-width: 350px;
-        max-width: var(--max-width);
         --width: 100%;
-        width: var(--width);
+        width: 100%;
         height: min-content;
         top: 8vh;
         left: calc(50vw - calc(var(--width) / 2));
@@ -1236,6 +1238,8 @@ img#vector-11{
     }
     .dialogue-blob{
         display: flex;
+        align-self: center;
+        justify-self: center;
         font-size: 16px;
         flex-direction: column;
         min-width: 100%;
@@ -1253,9 +1257,78 @@ img#vector-11{
     .char-name-label{
         font-size: 14px;
     }
-
-
+    #player-board{
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        max-width: 100vw;
+    }
+    .default-field{
+        display: flex;
+        min-width: 100%;
+        min-height: 100%;
+        --parent-width: 300px;
+        --width-height: calc(100vw / 10);
+        height: var(--width-height);
+        width: var(--width-height);
+    }
+    .place-ship-data-field{
+        --parent-width: 300px;
+        --width-height: calc(var(--parent-width) / 10);
+        height: var(--width-height);
+        width: var(--width-height);
+    }
+    #place-ship-container {
+        padding-right: 30vw;
+    }
+    #btn-toggle-axis{
+        top: 10px;
+        left: 70vw;
+    }
+    .plan-fleet-blob{
+        pointer-events: none;
+        margin-bottom: 0px;
+        animation: move-help-blob 1s ease-in forwards;
+    }
+    @keyframes move-help-blob {
+        from {
+            margin-left: 0px;
+        }
+        to{
+            margin-left: 200vw;
+        }
+    }
+    #game-content{
+        display: grid;
+        grid-template-columns: 1fr;
+        position: absolute;
+        align-items: center;
+        justify-content: center;
+        gap: 0rem;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+    }
+    #player-container{
+        display: none;
+    }
+    #settings-container{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        justify-content: center;
+        width: 100%;
+        background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+        padding: 0px;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        border-radius: 10px;
+        border: 2px solid #560F15;
+        margin-top: 1.5rem;
+    }
+    #vector-2 {
+        display: none;
+    }
 }
+
 
 
 

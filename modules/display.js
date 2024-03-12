@@ -1243,8 +1243,8 @@ function buildAiGrid(userGameboard) {
 
             // Check to see if player lost
             result = playerBoard.isAllSunk();
-            result = true;
             if (result === true) {
+                // Handle player lose instance
                 winInstance('lose');
             }
 
