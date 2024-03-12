@@ -84,7 +84,6 @@ function fieldDropElHandler(targetField) {
             draggedEl.remove();
             updateBoard();
             if (isMobileOrTablet()) {
-                console.log(`is mobile ${isMobileOrTablet()}`);
                 setTimeout(checkForUnplacedShips, 500);
             }
             playShipDrop();
@@ -264,6 +263,11 @@ const piratesCelebrating = new Audio('./audio/pirates-celebrating.mp3');
 piratesCelebrating.volume = (slider.value / 100) / 2;
 piratesCelebrating.loop = true;
 
+const winCongrats = new Audio('./audio/congratulations-1.mp3');
+winCongrats.volume = (slider.value / 100);
+const battleLost = new Audio('./audio/battle-lost.mp3');
+battleLost.volume = (slider.value / 100);
+
 const piratesPlotting = new Audio('./audio/pirate-mutiny.mp3');
 piratesPlotting.volume = (slider.value / 100) / 2;
 
@@ -281,6 +285,8 @@ function soundIconClick() {
         complimentAudio.volume = (slider.value / 100);
         piratesCelebrating.volume = (slider.value / 100) / 4;
         cannon.volume = (slider.value / 100) / 4;
+        battleLost.volume = (slider.value / 100);
+        winCongrats.volume = (slider.value / 100);
         piratesPlotting.volume = (slider.value / 100) / 2;
         bombExplosion.volume = (slider.value / 100) / 4;
         miss1.volume = (slider.value / 100) / 3;
@@ -320,6 +326,8 @@ function soundIconClick() {
         fightMusic.volume = 0;
         complimentAudio.volume = 0;
         cannon.volume = 0;
+        battleLost.volume = 0;
+        winCongrats.volume = 0;
         piratesPlotting.volume = 0;
         piratesCelebrating.volume = 0;
         bombExplosion.volume = 0;
@@ -355,6 +363,8 @@ slider.addEventListener('change', (event) => {
     }
     bombExplosion.volume = (slider.value / 100) / 4;
     cannon.volume = (slider.value / 100) / 4;
+    battleLost.volume = (slider.value / 100);
+    winCongrats.volume = (slider.value / 100);
     piratesPlotting.volume = (slider.value / 100) / 2;
     piratesCelebrating.volume = (slider.value / 100) / 4;
     miss1.volume = (slider.value / 100) / 3;
@@ -583,11 +593,11 @@ function randomizeFleet() {
             return getRandomizedMap(parentEl);
         })
         .then(() => {
-            // playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
+            playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
             parentEl.appendChild(playerBoardReference);
             playerBoardReference.classList.add('cabin-map-display');
             firstTransition = false;
-            toShipTransition(1000); // Needs to be 8000
+            toShipTransition(8000); // Needs to be 8000
         })
         .catch((error) => {
             console.error('Error during dialogue box removal:', error);
@@ -675,7 +685,6 @@ function axisKeydownToggle(event) {
         event.preventDefault();
         playbtnClick();
         toggleAxis();
-        console.log('toggling axis');
     }
 }
 function toggleAxis() {
@@ -701,13 +710,13 @@ function toggleAxis() {
 // Takes dialogue and text information and sends it to respective handling methods
 function startCabinDialogue() {
     const parentEl = document.getElementById('dialogue-container');
-    // playAudioSequence(greetDialogues, greetText, parentEl)
-    //     .then(() => {
-    getDialogueBtns(parentEl, positionFleetBtns);
-    // })
-    // .catch((error) => {
-    //     console.error('Error during audio playback:', error);
-    // });
+    playAudioSequence(greetDialogues, greetText, parentEl)
+        .then(() => {
+            getDialogueBtns(parentEl, positionFleetBtns);
+        })
+        .catch((error) => {
+            console.error('Error during audio playback:', error);
+        });
 }
 // GENERAL method for playing audio files in sequence
 function playAudioSequence(audioFiles, textFiles, parentEl, setClass) {
@@ -960,10 +969,6 @@ function helpEventListeners(field, text) {
 function checkForUnplacedShips() {
     const shipContainer = document.getElementById('place-ship-container');
     const planShipHelpContainer = document.getElementById('plan-fleet-help-container');
-    console.log('Logging ship container:');
-    console.log(shipContainer);
-    console.log('Logging ship container child nodes length');
-    console.log(shipContainer.childNodes.length);
 
     if (shipContainer.childNodes.length === 1) {
         const parentEl = document.getElementById('dialogue-container');
@@ -974,7 +979,6 @@ function checkForUnplacedShips() {
         shipContainer.classList.add('cabin-map-remove');
 
         if (firstTransition) {
-            console.log('Entering the transition');
             planShipHelpContainer.classList.add('cabin-map-remove');
 
             // Continues cabin dialogue
@@ -1090,9 +1094,9 @@ function toShipTransition(timer) {
                     appendVectors(paraContainer, shipDeckVectorEls);
                     return new Promise((innerResolve, innerReject) => {
                         setTimeout(() => {
-                            // playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
-                            innerResolve();
-                            // });
+                            playAudioSequence(battleStartAudio, battleStartText, dialogueContainer).then(() => {
+                                innerResolve();
+                            });
                         }, 800);
                     });
                 })
@@ -1206,10 +1210,6 @@ function buildAiGrid(userGameboard) {
             // Player turn
 
             let result = aiGameboard.receiveAttack(x, y);
-            // // Handle player win instance
-            // if (result === true) {
-
-            // }
             aiBoard.classList.add('board-disabled');
             updateAiBoard(document.getElementById('ai-gameboard'), aiGameboard);
             // Handles player click result
@@ -1221,6 +1221,8 @@ function buildAiGrid(userGameboard) {
                 announceShipLost(clickX, clickY);
                 shipSinkPlay();
             }
+
+            // Handle player win
             if (result === 'Game over!') {
                 // Disable each field on the board after click
                 // Prevents multiple audio tracks from playing if user spams click
@@ -1406,7 +1408,7 @@ const loseText = [
 const loseAudio = [
     './audio/pirate-lose.mp3',
 ];
-let isFirstWinAudioSeqPlayer = false;
+let isFirstWinAudioSeqPlayed = false;
 
 // Win / Lose instance
 function winInstance(status) {
@@ -1416,13 +1418,13 @@ function winInstance(status) {
             showPirate();
             quietDownAudio(battleAmbience);
 
-            if (!isFirstWinAudioSeqPlayer) {
+            if (!isFirstWinAudioSeqPlayed) {
                 if (status === 'win') {
                     playAudioSequence(winAudio, winText, dialogueContainer)
                         .then(() => {
                             piratesCelebrating.play();
                             clearElChildren(dialogueContainer);
-                            isFirstWinAudioSeqPlayer = true;
+                            isFirstWinAudioSeqPlayed = true;
                             getHeroMessage(status);
                         });
                 } else {
@@ -1430,7 +1432,7 @@ function winInstance(status) {
                         .then(() => {
                             piratesPlotting.play();
                             clearElChildren(dialogueContainer);
-                            isFirstWinAudioSeqPlayer = true;
+                            isFirstWinAudioSeqPlayed = true;
                             getHeroMessage(status);
                         });
                 }
@@ -1461,8 +1463,10 @@ function getHeroMessage(win) {
     let text = '';
     if (win === 'win') {
         text = `Congratulations ${playerName},<br>You win!`;
+        if (isFirstWinAudioSeqPlayed === true) winCongrats.play();
     } else {
-        text = `Your fleet is sunk.<br>${playerName}, You lost!`;
+        text = `Your fleet is sunk.<br>${playerName}, <br>You lost!`;
+        if (isFirstWinAudioSeqPlayed === true) battleLost.play();
     }
     const container = createDiv('', 'after-game-container');
     const hero = createPara(text, '', 'hero-announcement-message');
@@ -1532,7 +1536,7 @@ function getSettingsDisplay() {
     const container = createDiv('', 'settings-container');
 
     const islandsContainer = createDiv(['sub-settings-container'], '');
-    const islandsText = createPara('islands?', ['settings-text'], '');
+    const islandsText = createPara('Islands?', ['settings-text'], '');
     const islandsBtn = createButton('On', ['cabin-btn'], 'btn-islands');
     islandsBtn.addEventListener('click', () => {
         playbtnClick();

@@ -777,8 +777,8 @@ img#vector-11{
 }
 .place-ship{
     display: flex;
-    max-width: min-content;
-    max-height: min-content;
+    width: min-content;
+    height: min-content;
 }
 .place-ship-y{
     flex-direction: column;
@@ -1148,9 +1148,11 @@ img#vector-11{
     align-items: center;
     justify-content: center;
     width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
     background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
     border-radius: 10px;
-    border: 2px solid #560F15;
+    border: 4px solid #560F15;
     padding: 2rem;
 }
 #hero-announcement-message{
@@ -1210,7 +1212,50 @@ img#vector-11{
 
 
 
+@media screen and (max-width: 600px) and (orientation: portrait) {
+    body{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+    }
+    #dialogue-container.ship-cabin-dialogue-container{
+        display: flex;
+        flex-direction: column;
+        --max-width: 350px;
+        max-width: var(--max-width);
+        --width: 100%;
+        width: var(--width);
+        height: min-content;
+        top: 8vh;
+        left: calc(50vw - calc(var(--width) / 2));
+    }
+    #volume-container{
+        top: 10px;
+        right: 10px;
+    }
+    .dialogue-blob{
+        display: flex;
+        font-size: 16px;
+        flex-direction: column;
+        min-width: 100%;
+        background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+        padding: 8px;
+        margin: 8px 0px;
+        box-sizing: border-box;
+        border-radius: 20px;
+        border: 6px solid #560F15;
+        animation: show-dialogue-box 700ms;
+    } 
+    .dialogue-box-text{
+        font-size: 12px;
+    }
+    .char-name-label{
+        font-size: 14px;
+    }
 
+
+}
 
 
 
