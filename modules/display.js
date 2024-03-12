@@ -14,6 +14,7 @@ import {
 } from './audioControls.js';
 // playAudioSequence reminder
 
+
 const { body } = document;
 const form = document.getElementById('form');
 const formContainer = document.getElementById('form-container');
@@ -62,19 +63,12 @@ function onTouchEnd(event) {
         const targetField = document.elementFromPoint(touch.clientX, touch.clientY);
         const shipType = event.target.getAttribute('shiptype');
         const clickValue = event.target.getAttribute('clickvalue');
-        console.log(shipType);
-        console.log(clickValue);
-        console.log(`Target field x: ${parseInt(targetField.getAttribute('x-cord'))}`);
-        console.log(`Target field y: ${parseInt(targetField.getAttribute('y-cord'))}`);
         setClickValue(clickValue);
         setShipType(shipType);
         if (targetField && targetField.classList.contains('default-field')) {
-            // targetField.appendChild(dragElParent);
             fieldDropElHandler(targetField);
         }
     }
-    // dragElParent = null;
-    // draggedEl = null;
 }
 
 // Handles drop logic for mobile devices
@@ -82,9 +76,7 @@ function fieldDropElHandler(targetField) {
     if (draggedEl) {
         const x = parseInt(targetField.getAttribute('x-cord'));
         const y = parseInt(targetField.getAttribute('y-cord'));
-        console.log(`Getting target x: ${x}, y: ${y}`);
         if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
-            // targetField.appendChild(dragElParent);
             dragElParent.remove();
             draggedEl.remove();
             updateBoard();
@@ -224,6 +216,8 @@ const icon = getIcon();
 const slider = getVolumeSlider();
 slider.value = 0;
 const audioControls = getAudioControls(slider, icon);
+askForSound();
+
 
 function playAudio() {
     audio.play();
@@ -259,6 +253,10 @@ piratesCelebrating.loop = true;
 
 // Handles Muting and Unmuting the sound for application
 icon.addEventListener('click', () => {
+    soundIconClick();
+});
+
+function soundIconClick() {
     if (icon.src.toString().includes(volumeIcons.volX.slice(1)) ||
         icon.src.toString().includes(volumeIcons.volXWhite.slice(1))) {
         audio.volume = cachedAudioVolume;
@@ -313,7 +311,7 @@ icon.addEventListener('click', () => {
         shipSink.volume = 0;
         setVol(audio);
     }
-});
+}
 // Handles changing the sould levels via range input for the app
 slider.addEventListener('change', (event) => {
     setVol(audio);
@@ -360,7 +358,7 @@ audioControls.addEventListener('mouseleave', () => {
 function setVol(audioEl) {
     audioEl.volume = slider.value / 100;
 }
-body.appendChild(audioControls);
+// body.appendChild(audioControls);
 // ================================[\AUDIO CONTROLS]================================
 
 
@@ -1404,3 +1402,60 @@ function showPirate() {
     pirate.classList.remove('move-deck');
 }
 
+
+// Ask for sound permission before entering the game itself.
+function askForSound() {
+    const background = createDiv('', 'user-sound-input-background');
+    const container = createDiv('', 'user-sound-input-container');
+    const question = createPara('Would you like to play with sound?', '', 'sound-question');
+    const note = createPara('Creator suggestion, yes :)', '', 'sound-note');
+
+    const audioControlsContainer = createDiv('', 'audio-controls-modal-container');
+    audioControlsContainer.appendChild(audioControls);
+
+    const btnsContainer = createDiv('', 'sound-buttons-container');
+    const btnYesContainer = createDiv('', 'btn-yes-container');
+    const btnYes = createButton('Yes I want sound', [], 'btn-sound-yes');
+    btnYesContainer.appendChild(btnYes);
+    const btnNoContainer = createDiv('', 'btn-no-container');
+    const btnNo = createButton('No keep it muted', [], 'btn-sound-no');
+    btnNoContainer.appendChild(btnNo);
+    appendChildren(btnsContainer, [btnYesContainer, btnNoContainer]);
+    audioControls.classList.add('move-volume-container');
+
+
+    btnYes.addEventListener('click', () => {
+        btnYesMethod();
+        btnYes.classList.add('.btn-submit-active');
+        body.appendChild(audioControls);
+        audioControls.classList.remove('move-volume-container');
+    });
+    btnNo.addEventListener('click', () => {
+        btnNoMethod();
+        btnNo.classList.add('.btn-submit-active');
+        body.appendChild(audioControls);
+        audioControls.classList.remove('move-volume-container');
+    });
+
+    appendChildren(container, [question, note, audioControlsContainer, btnsContainer]);
+    background.appendChild(container);
+    body.appendChild(background);
+}
+function btnYesMethod() {
+    body.appendChild(audioControls);
+    const modal = document.getElementById('user-sound-input-background');
+    modal.classList.add('fade-out-remove');
+    soundIconClick();
+
+    setTimeout(() => {
+        modal.remove();
+    }, 1100);
+}
+function btnNoMethod() {
+    body.appendChild(audioControls);
+    const modal = document.getElementById('user-sound-input-background');
+    modal.classList.add('fade-out-remove');
+    setTimeout(() => {
+        modal.remove();
+    }, 1100);
+}

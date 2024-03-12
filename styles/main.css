@@ -115,6 +115,54 @@ table {
     --focus-color: #10a7a7;
     --input-blue-color: #006595;
 }
+#user-sound-input-background{
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    background-color: #160038;
+    width: 100%;
+    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+#user-sound-input-container{
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    gap: 1rem;
+    background-color: var(--background-color);
+    background-color: rgba(0, 13, 31, 0.7);
+    position: relative;
+    text-align: center;
+}
+#sound-question{
+    color: var(--color);
+    font-size: 28px;
+    font-weight: bold;
+}
+#sound-note{
+    color: var(--color);
+    font-size: 18px;
+    font-weight: bold;
+}
+#sound-buttons-container{
+    display: flex;
+    gap: 1rem;
+}
+#audio-controls-modal-container{
+    display: flex;
+    position: relative;
+    min-height: 30px;
+}
+
+
+
+
+
 #volume-container {
     z-index: 69;
     display: flex;
@@ -123,6 +171,10 @@ table {
     gap: 1rem;
     top: 50px;
     right: 50px;
+}
+.move-volume-container{
+    left: 130px !important;
+    top: 10px !important;
 }
 .audio-control{
     height: 35px;
@@ -243,7 +295,9 @@ form{
     -webkit-text-fill-color: white;   
     -webkit-background-clip: text;
 }
-#btn-play {
+#btn-play,
+#btn-sound-yes,
+#btn-sound-no {
     border-radius: 15px;
     padding: 0.6rem 1.7rem;
     background-image: linear-gradient(to right, #1A428F 0%, #10a7a7  51%, #1A428F  100%);
@@ -256,14 +310,18 @@ form{
     transition-duration: 0.4s;
     min-width: 100px;
 }
-#btn-play:hover {
+#btn-play:hover,
+#btn-sound-yes:hover,
+#btn-sound-no:hover {
     background-position: right center;
     text-decoration: none;
     cursor: pointer;
 }
 
 /* <-- BTN ANIMATIONS --> */
-#btn-play:active{
+#btn-play:active,
+#btn-sound-yes:active,
+#btn-sound-no:active{
     animation: btn-submit 0.15s ease-in-out;
 }
 .btn-submit-active{
@@ -277,7 +335,9 @@ form{
         transform: scale(0.95);
     }
 }
-#btn-container{
+#btn-container,
+#btn-yes-container,
+#btn-no-container{
     display: inline-block;
     position: relative;
     margin-left: auto;
@@ -287,7 +347,9 @@ form{
     margin-top: auto;
     display: flex;
 }
-button#btn-play:after {
+button#btn-play:after,
+button#btn-sound-yes:after,
+button#btn-sound-no:after {
     content: "";
     display: block;
     position: absolute;
@@ -300,7 +362,9 @@ button#btn-play:after {
     box-shadow: 0 0 10px 20px #10a7a7;
     border-radius: 15px;
 }
-button#btn-play:active:after {
+button#btn-play:active:after,
+button#btn-sound-yes:active:after,
+button#btn-sound-no:active:after {
     box-shadow: 0 0 0 0 #10a7a7;
     border-radius: 15px;
     position: absolute;
@@ -309,7 +373,9 @@ button#btn-play:active:after {
     opacity: 1;
     transition: 0s;
 }
-button#btn-play:focus{
+button#btn-play:focus,
+button#btn-sound-yes:focus,
+button#btn-sound-no:focus{
     outline: 2px solid var(--focus-color);
 }
 /* <-- \BTN ANIMATIONS --> */
