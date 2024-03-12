@@ -64,14 +64,17 @@ function onTouchEnd(event) {
         const clickValue = event.target.getAttribute('clickvalue');
         console.log(shipType);
         console.log(clickValue);
+        console.log(`Target field x: ${parseInt(targetField.getAttribute('x-cord'))}`);
+        console.log(`Target field y: ${parseInt(targetField.getAttribute('y-cord'))}`);
         setClickValue(clickValue);
         setShipType(shipType);
         if (targetField && targetField.classList.contains('default-field')) {
             // targetField.appendChild(dragElParent);
-            fieldDropElHandler(event, targetField);
+            fieldDropElHandler(targetField);
         }
     }
-    dragElParent = null;
+    // dragElParent = null;
+    // draggedEl = null;
 }
 
 // Handles drop logic for mobile devices
@@ -81,12 +84,17 @@ function fieldDropElHandler(targetField) {
         const y = parseInt(targetField.getAttribute('y-cord'));
         console.log(`Getting target x: ${x}, y: ${y}`);
         if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
-            targetField.appendChild(dragElParent);
+            // targetField.appendChild(dragElParent);
+            dragElParent.remove();
+            draggedEl.remove();
             updateBoard();
             setTimeout(checkForUnplacedShips, 1000);
             playShipDrop();
             activeCompliment.pause();
             rollCompliment();
+
+            dragElParent = null;
+            draggedEl = null;
         }
     }
 }
