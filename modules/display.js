@@ -84,7 +84,8 @@ function fieldDropElHandler(targetField) {
             draggedEl.remove();
             updateBoard();
             if (isMobileOrTablet()) {
-                setTimeout(checkForUnplacedShips, 1000);
+                console.log(`is mobile ${isMobileOrTablet()}`);
+                setTimeout(checkForUnplacedShips, 500);
             }
             playShipDrop();
             activeCompliment.pause();
@@ -250,7 +251,11 @@ function quietDownAudio(audioEl) {
                 audioEl.pause();
                 return;
             }
-            audioEl.volume -= 0.1;
+            if (audioEl >= 0.1) {
+                audioEl.volume -= 0.1;
+            } else {
+                audioEl.pause();
+            }
         }, timer);
         timer += 600;
     }
@@ -258,6 +263,9 @@ function quietDownAudio(audioEl) {
 const piratesCelebrating = new Audio('./audio/pirates-celebrating.mp3');
 piratesCelebrating.volume = (slider.value / 100) / 2;
 piratesCelebrating.loop = true;
+
+const piratesPlotting = new Audio('./audio/pirate-mutiny.mp3');
+piratesPlotting.volume = (slider.value / 100) / 2;
 
 
 // Handles Muting and Unmuting the sound for application
@@ -273,6 +281,7 @@ function soundIconClick() {
         complimentAudio.volume = (slider.value / 100);
         piratesCelebrating.volume = (slider.value / 100) / 4;
         cannon.volume = (slider.value / 100) / 4;
+        piratesPlotting.volume = (slider.value / 100) / 2;
         bombExplosion.volume = (slider.value / 100) / 4;
         miss1.volume = (slider.value / 100) / 3;
         miss2.volume = (slider.value / 100) / 3;
@@ -311,6 +320,7 @@ function soundIconClick() {
         fightMusic.volume = 0;
         complimentAudio.volume = 0;
         cannon.volume = 0;
+        piratesPlotting.volume = 0;
         piratesCelebrating.volume = 0;
         bombExplosion.volume = 0;
         miss1.volume = 0;
@@ -345,6 +355,7 @@ slider.addEventListener('change', (event) => {
     }
     bombExplosion.volume = (slider.value / 100) / 4;
     cannon.volume = (slider.value / 100) / 4;
+    piratesPlotting.volume = (slider.value / 100) / 2;
     piratesCelebrating.volume = (slider.value / 100) / 4;
     miss1.volume = (slider.value / 100) / 3;
     miss2.volume = (slider.value / 100) / 3;
@@ -915,7 +926,7 @@ function buildGrid() {
                 if (playerBoard.placeShip(shipType, clickValue, axis, x, y) === true) {
                     event.target.appendChild(draggedEl);
                     updateBoard();
-                    setTimeout(checkForUnplacedShips, 1000);
+                    setTimeout(checkForUnplacedShips, 500);
                     playShipDrop();
                     activeCompliment.pause();
                     rollCompliment();
@@ -1182,7 +1193,7 @@ function buildAiGrid(userGameboard) {
                 event.preventDefault();
                 return;
             }
-            playerWinInstance();
+
             const turn = getTurn();
             const x = parseInt(event.target.getAttribute('x-cord'));
             const y = parseInt(event.target.getAttribute('y-cord'));
@@ -1195,10 +1206,10 @@ function buildAiGrid(userGameboard) {
             // Player turn
 
             let result = aiGameboard.receiveAttack(x, y);
-            // Handle player win instance
-            if (result === true) {
+            // // Handle player win instance
+            // if (result === true) {
 
-            }
+            // }
             aiBoard.classList.add('board-disabled');
             updateAiBoard(document.getElementById('ai-gameboard'), aiGameboard);
             // Handles player click result
@@ -1220,7 +1231,7 @@ function buildAiGrid(userGameboard) {
                     defField.classList.add('pointer-event-none');
                 });
 
-                playerWinInstance();
+                winInstance('win');
             }
 
 
@@ -1230,7 +1241,12 @@ function buildAiGrid(userGameboard) {
 
             // Check to see if player lost
             result = playerBoard.isAllSunk();
-            if (result === true) { alert('YOU LOST!'); }
+            result = true;
+            if (result === true) {
+                winInstance('lose');
+            }
+
+
             setTimeout(() => {
                 updatePlayerBoard(document.getElementById('player-gameboard'));
                 aiBoard.classList.remove('board-disabled');
@@ -1382,18 +1398,18 @@ const winAudio = [
 ];
 const loseText = [
     {
-        text: 'Great work captain!\nWith all of those ship sunk the enemy is fleeing in disarray.\nThe day is ours!',
+        text: 'Captain... Our fleet... Our fleet is gone, rotting at the bottom of the sea.. \nThe day has been lost.',
         character: 'Jolly Roger Jack',
     },
 ];
 
-const winLoseAudio = [
-    './audio/how-to-place-ship.mp3',
-    './audio/how-to-toggle-axis.mp3',
-    './audio/beware-of-mines.mp3',
+const loseAudio = [
+    './audio/pirate-lose.mp3',
 ];
 let isFirstWinAudioSeqPlayer = false;
-function playerWinInstance() {
+
+// Win / Lose instance
+function winInstance(status) {
     fadeAndRemoveGameContent()
         .then(() => {
             const dialogueContainer = document.getElementById('dialogue-container');
@@ -1401,19 +1417,30 @@ function playerWinInstance() {
             quietDownAudio(battleAmbience);
 
             if (!isFirstWinAudioSeqPlayer) {
-                playAudioSequence(winAudio, winText, dialogueContainer)
-                    .then(() => {
-                        piratesCelebrating.play();
-                        clearElChildren(dialogueContainer);
-                        isFirstWinAudioSeqPlayer = true;
-                        getHeroMessage('win');
-                    });
+                if (status === 'win') {
+                    playAudioSequence(winAudio, winText, dialogueContainer)
+                        .then(() => {
+                            piratesCelebrating.play();
+                            clearElChildren(dialogueContainer);
+                            isFirstWinAudioSeqPlayer = true;
+                            getHeroMessage(status);
+                        });
+                } else {
+                    playAudioSequence(loseAudio, loseText, dialogueContainer)
+                        .then(() => {
+                            piratesPlotting.play();
+                            clearElChildren(dialogueContainer);
+                            isFirstWinAudioSeqPlayer = true;
+                            getHeroMessage(status);
+                        });
+                }
             } else {
                 clearElChildren(dialogueContainer);
-                getHeroMessage('win');
+                getHeroMessage(status);
             }
         });
 }
+
 function fadeAndRemoveGameContent() {
     return new Promise((resolve, reject) => {
         const gameContent = document.getElementById('game-content');
@@ -1435,7 +1462,7 @@ function getHeroMessage(win) {
     if (win === 'win') {
         text = `Congratulations ${playerName},<br>You win!`;
     } else {
-        text = `Your fleet is sunk.<br>${playerName}You lost!`;
+        text = `Your fleet is sunk.<br>${playerName}, You lost!`;
     }
     const container = createDiv('', 'after-game-container');
     const hero = createPara(text, '', 'hero-announcement-message');
