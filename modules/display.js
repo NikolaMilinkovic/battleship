@@ -2,11 +2,11 @@
 /* eslint-disable operator-linebreak */
 /* eslint-disable prefer-destructuring */
 import {
-    createDiv, createPara, createInput, appendChildren, createButton, paraImg, createImg,
+    createDiv, createPara, createInput, appendChildren, createButton, paraImg, createImg, createCheckbox,
 } from './elementBuilder.js';
 import Player from './player.js';
 import {
-    initPlayerBoard, playGame, initAiBoard, getTurn, changeTurn, innitPlayer,
+    initPlayerBoard, playGame, initAiBoard, getTurn, changeTurn, innitPlayer, toggleIslands, toggleSeaMines, setSeaMineNumber,
 } from './game.js';
 import { enablePara, disablePara } from './para.js';
 import {
@@ -70,7 +70,10 @@ function onTouchEnd(event) {
         }
     }
 }
-
+// Method for checking if user is on phone or tablet
+function isMobileOrTablet() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
 // Handles drop logic for mobile devices
 function fieldDropElHandler(targetField) {
     if (draggedEl) {
@@ -80,7 +83,9 @@ function fieldDropElHandler(targetField) {
             dragElParent.remove();
             draggedEl.remove();
             updateBoard();
-            setTimeout(checkForUnplacedShips, 1000);
+            if (isMobileOrTablet()) {
+                setTimeout(checkForUnplacedShips, 1000);
+            }
             playShipDrop();
             activeCompliment.pause();
             rollCompliment();
@@ -99,6 +104,8 @@ let playerBoardReference;
 let axis = 'x';
 let hasBattleStarted = false;
 let showInfoBox = false;
+let firstTransition = true;
+let afterGameSettingsCache;
 const helpInformations = {
     infoSeaMine: 'Sea mine, when hit blows up damaging everything in the fields adjacent to it.<br> We should avoid placing ships next to it!',
     infoLand: 'Field representing the land, your ships can\'t go onto land..<br> Right?!',
@@ -169,7 +176,7 @@ function playMiss() {
 
 
 // AI REFERENCES
-const aiGameboard = initAiBoard();
+let aiGameboard = initAiBoard();
 let aiBoardReference;
 // \AI REFERENCES
 const battleAmbience = new Audio('./audio/pirate-ship-battle-ambience.mp3');
@@ -199,6 +206,7 @@ function rollCompliment() {
 form.addEventListener('submit', preventDefault);
 function preventDefault(event) {
     event.preventDefault();
+    playbtnClick();
 }
 // End of prevent default code
 
@@ -250,6 +258,7 @@ function quietDownAudio(audioEl) {
 const piratesCelebrating = new Audio('./audio/pirates-celebrating.mp3');
 piratesCelebrating.volume = (slider.value / 100) / 2;
 piratesCelebrating.loop = true;
+
 
 // Handles Muting and Unmuting the sound for application
 icon.addEventListener('click', () => {
@@ -566,6 +575,7 @@ function randomizeFleet() {
             // playAudioSequence(shipsRandomizedAudio, shipsRandomizedText, parentEl);
             parentEl.appendChild(playerBoardReference);
             playerBoardReference.classList.add('cabin-map-display');
+            firstTransition = false;
             toShipTransition(1000); // Needs to be 8000
         })
         .catch((error) => {
@@ -602,7 +612,6 @@ function displayMap(parentEl) {
     const pBoardContainer = document.createElement('div');
     pBoardContainer.classList.add('player-board-container');
     pBoardContainer.setAttribute('id', 'player-board-container');
-    // playerBoard.init();
     const grid = buildGrid();
     grid.classList.add('tooltip-class-parent');
     pBoardContainer.appendChild(grid);
@@ -940,6 +949,11 @@ function helpEventListeners(field, text) {
 function checkForUnplacedShips() {
     const shipContainer = document.getElementById('place-ship-container');
     const planShipHelpContainer = document.getElementById('plan-fleet-help-container');
+    console.log('Logging ship container:');
+    console.log(shipContainer);
+    console.log('Logging ship container child nodes length');
+    console.log(shipContainer.childNodes.length);
+
     if (shipContainer.childNodes.length === 1) {
         const parentEl = document.getElementById('dialogue-container');
         const boardContainer = document.querySelector('.player-board-container');
@@ -947,18 +961,31 @@ function checkForUnplacedShips() {
         shipContainer.classList.remove('cabin-map-display');
         boardContainer.classList.add('cabin-map-remove');
         shipContainer.classList.add('cabin-map-remove');
-        planShipHelpContainer.classList.add('cabin-map-remove');
 
-        // Continues cabin dialogue
-        setTimeout(() => {
-            activeCompliment.pause();
-            // playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
-            //     .then(() => {
-            toShipTransition(200);
-            // });
-        }, 750);
+        if (firstTransition) {
+            console.log('Entering the transition');
+            planShipHelpContainer.classList.add('cabin-map-remove');
+
+            // Continues cabin dialogue
+            setTimeout(() => {
+                activeCompliment.pause();
+                playAudioSequence(shipsPositionedDialogue, shipsPositionedText, parentEl)
+                    .then(() => {
+                        firstTransition = false;
+                        toShipTransition(200);
+                    });
+            }, 750);
+        } else {
+            // Displays new gameboard > Starts new game actively
+            gameDisplay(playerName);
+            displayAiMap();
+            innitPlayer(playerName);
+            updatePlayerBoard(document.getElementById('player-gameboard'));
+        }
     }
 }
+
+// Updates the player board
 function updateBoard() {
     const boardContainer = document.querySelector('.player-board-container');
     clearElChildren(boardContainer);
@@ -1184,6 +1211,15 @@ function buildAiGrid(userGameboard) {
                 shipSinkPlay();
             }
             if (result === 'Game over!') {
+                // Disable each field on the board after click
+                // Prevents multiple audio tracks from playing if user spams click
+                const currentBoard = document.getElementById('ai-board');
+                currentBoard.classList.add('pointer-event-none');
+                const defaultFields = document.querySelectorAll('.default-field');
+                defaultFields.forEach((defField) => {
+                    defField.classList.add('pointer-event-none');
+                });
+
                 playerWinInstance();
             }
 
@@ -1356,7 +1392,7 @@ const winLoseAudio = [
     './audio/how-to-toggle-axis.mp3',
     './audio/beware-of-mines.mp3',
 ];
-
+let isFirstWinAudioSeqPlayer = false;
 function playerWinInstance() {
     fadeAndRemoveGameContent()
         .then(() => {
@@ -1364,12 +1400,18 @@ function playerWinInstance() {
             showPirate();
             quietDownAudio(battleAmbience);
 
-            playAudioSequence(winAudio, winText, dialogueContainer)
-                .then(() => {
-                    piratesCelebrating.play();
-                    clearElChildren(dialogueContainer);
-                    getHeroMessage('win');
-                });
+            if (!isFirstWinAudioSeqPlayer) {
+                playAudioSequence(winAudio, winText, dialogueContainer)
+                    .then(() => {
+                        piratesCelebrating.play();
+                        clearElChildren(dialogueContainer);
+                        isFirstWinAudioSeqPlayer = true;
+                        getHeroMessage('win');
+                    });
+            } else {
+                clearElChildren(dialogueContainer);
+                getHeroMessage('win');
+            }
         });
 }
 function fadeAndRemoveGameContent() {
@@ -1382,6 +1424,11 @@ function fadeAndRemoveGameContent() {
         }, 2000);
     });
 }
+function showPirate() {
+    const pirate = document.getElementById('vector-11');
+    pirate.classList.remove('fade-out-remove');
+    pirate.classList.remove('move-deck');
+}
 function getHeroMessage(win) {
     const dialogueContainer = document.getElementById('dialogue-container');
     let text = '';
@@ -1392,18 +1439,137 @@ function getHeroMessage(win) {
     }
     const container = createDiv('', 'after-game-container');
     const hero = createPara(text, '', 'hero-announcement-message');
-    container.appendChild(hero);
+
+    const btnsContainer = createDiv(['dialogue-btns'], 'after-game-btns');
+    const playAgain = createButton('Play again?', ['cabin-btn'], 'btn-play-again');
+    const settings = createButton('Settings', ['cabin-btn'], 'btn-settings');
+    appendChildren(btnsContainer, [playAgain, settings]);
+    appendChildren(container, [hero, btnsContainer]);
+
+    playAgain.addEventListener('click', () => {
+        playbtnClick();
+        playAgainMethod();
+    });
+    settings.addEventListener('click', () => {
+        toggleSettingsDisplay(dialogueContainer);
+        playbtnClick();
+    });
+
     dialogueContainer.appendChild(container);
     dialogueContainer.classList.add('cabin-map-display');
 }
-function showPirate() {
-    const pirate = document.getElementById('vector-11');
-    pirate.classList.remove('fade-out-remove');
-    pirate.classList.remove('move-deck');
+
+// Handles starting another game > Goes into ship placement
+// After that starts the game and repeats the process
+function playAgainMethod() {
+    const shipContainer = document.getElementById('place-ship-container');
+    if (shipContainer) shipContainer.remove();
+    const parentEl = document.getElementById('dialogue-container');
+    quietDownAudio(piratesCelebrating);
+    aiGameboard = initAiBoard(); // Create new Ai board
+    clearElChildren(parentEl);
+    playerBoard = initPlayerBoard(playerName);
+    displayMap(parentEl);
+    axis = 'x'; // Reset axis
+    positionShips(parentEl);
+
+    // checkForUnplacedShips takes over automaticaly and displays new game
+}
+
+// Handles displaying the settings container
+function toggleSettingsDisplay(parentEl) {
+    const settingsContainer = document.getElementById('settings-container');
+    let hasActiveClass;
+    if (settingsContainer) {
+        hasActiveClass = settingsContainer.classList.contains('cabin-map-remove');
+    }
+    if (!settingsContainer) {
+        if (!afterGameSettingsCache) {
+            const getSettingsContainer = getSettingsDisplay();
+            afterGameSettingsCache = getSettingsContainer;
+            parentEl.appendChild(getSettingsContainer);
+            getSettingsContainer.classList.add('cabin-map-display');
+        } else {
+            parentEl.appendChild(afterGameSettingsCache);
+        }
+    } else if (hasActiveClass) {
+        settingsContainer.classList.add('cabin-map-display');
+        settingsContainer.classList.remove('cabin-map-remove');
+    } else {
+        settingsContainer.classList.remove('cabin-map-display');
+        settingsContainer.classList.add('cabin-map-remove');
+    }
+}
+// Creates settings container with its elements
+function getSettingsDisplay() {
+    const container = createDiv('', 'settings-container');
+
+    const islandsContainer = createDiv(['sub-settings-container'], '');
+    const islandsText = createPara('islands?', ['settings-text'], '');
+    const islandsBtn = createButton('On', ['cabin-btn'], 'btn-islands');
+    islandsBtn.addEventListener('click', () => {
+        playbtnClick();
+        toggleIslandBtn(islandsBtn);
+    });// toggleIslands, toggleSeaMines, setSeaMineNumber
+    appendChildren(islandsContainer, [islandsText, islandsBtn]);
+
+    const seaMineContainer = createDiv(['sub-settings-container'], '');
+    const seaMineText = createPara('Sea mines?', ['settings-text'], '');
+    const seaMineBtn = createButton('On', ['cabin-btn'], 'btn-seaMine');
+    seaMineBtn.addEventListener('click', () => {
+        playbtnClick();
+        toggleSeaMineBtn(seaMineBtn);
+    });
+    appendChildren(seaMineContainer, [seaMineText, seaMineBtn]);
+
+    const seaMineNumContainer = createDiv(['sub-settings-container'], '');
+    const seaMineNumText = createPara('Sea mines per board?', ['settings-text'], '');
+    const seaMineNumInput = createInput('0 - 15', [], 'sea-mine-num-input');
+    seaMineNumInput.addEventListener('input', () => {
+        playbtnClick();
+        if (seaMineNumInput.value) {
+            if (evalNumInput(seaMineNumInput.value, 0, 15)) {
+                setSeaMineNumber(seaMineNumInput.value);
+            } else {
+                seaMineNumInput.value = '';
+            }
+        }
+    });
+    appendChildren(seaMineNumContainer, [seaMineNumText, seaMineNumInput]);
+
+    appendChildren(container, [islandsContainer, seaMineContainer, seaMineNumContainer]);
+    return container;
+}
+// Method for evaluating if input is numerical and inside the range inclusive
+function evalNumInput(input, min, max) {
+    const isValid = /^\d+$/.test(input) && parseInt(input) >= min && parseInt(input) <= max;
+    if (isValid) return true;
+    return false;
+}
+// Togles Island btn on / off
+function toggleIslandBtn(btn) {
+    if (btn.innerHTML === 'On') {
+        btn.innerHTML = 'Off';
+        toggleIslands();
+    } else {
+        btn.innerHTML = 'On';
+        toggleIslands();
+    }
+}
+// Togles seaMines btn on / off
+function toggleSeaMineBtn(btn) {
+    if (btn.innerHTML === 'On') {
+        btn.innerHTML = 'Off';
+        toggleSeaMines();
+    } else {
+        btn.innerHTML = 'On';
+        toggleSeaMines();
+    }
 }
 
 
 // Ask for sound permission before entering the game itself.
+// Creates and appends all needed elements / buttons
 function askForSound() {
     const background = createDiv('', 'user-sound-input-background');
     const container = createDiv('', 'user-sound-input-container');
@@ -1411,7 +1577,9 @@ function askForSound() {
     const note = createPara('Creator suggestion, yes :)', '', 'sound-note');
 
     const audioControlsContainer = createDiv('', 'audio-controls-modal-container');
-    audioControlsContainer.appendChild(audioControls);
+    const audioIconContainer = createDiv('', 'audio-icon-modal-container');
+    audioIconContainer.appendChild(audioControls);
+    audioControlsContainer.appendChild(audioIconContainer);
 
     const btnsContainer = createDiv('', 'sound-buttons-container');
     const btnYesContainer = createDiv('', 'btn-yes-container');
@@ -1423,39 +1591,57 @@ function askForSound() {
     appendChildren(btnsContainer, [btnYesContainer, btnNoContainer]);
     audioControls.classList.add('move-volume-container');
 
+    // Hide form
+    formContainer.classList.add('form-opacity-0');
 
+    // Event listener for Yes sound button
     btnYes.addEventListener('click', () => {
         btnYesMethod();
         btnYes.classList.add('.btn-submit-active');
         body.appendChild(audioControls);
         audioControls.classList.remove('move-volume-container');
+        formContainer.classList.remove('form-opacity-0');
+        formContainer.classList.add('fade-in-form-container');
     });
+    // Event listener for No sound button
     btnNo.addEventListener('click', () => {
         btnNoMethod();
         btnNo.classList.add('.btn-submit-active');
         body.appendChild(audioControls);
         audioControls.classList.remove('move-volume-container');
+        formContainer.classList.remove('form-opacity-0');
+        formContainer.classList.add('fade-in-form-container');
     });
 
     appendChildren(container, [question, note, audioControlsContainer, btnsContainer]);
     background.appendChild(container);
     body.appendChild(background);
 }
+
+// Btn Yes sound logic
 function btnYesMethod() {
     body.appendChild(audioControls);
     const modal = document.getElementById('user-sound-input-background');
     modal.classList.add('fade-out-remove');
     soundIconClick();
+    inputName.focus();
+    playbtnClick();
 
     setTimeout(() => {
         modal.remove();
+        inputName.focus();
     }, 1100);
 }
+// Btn No sound logic
 function btnNoMethod() {
     body.appendChild(audioControls);
     const modal = document.getElementById('user-sound-input-background');
     modal.classList.add('fade-out-remove');
+    inputName.focus();
+    playbtnClick();
+
     setTimeout(() => {
         modal.remove();
+        inputName.focus();
     }, 1100);
 }

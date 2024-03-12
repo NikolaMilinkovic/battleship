@@ -8,13 +8,36 @@ let player;
 let computer;
 let result;
 let winner;
+const numOfIslands = 2;
+let numOfSeaMines = 5;
+let addIslands = true;
+let addMines = true;
+
+export function toggleIslands() {
+    if (addIslands === true) {
+        addIslands = false;
+    } else {
+        addIslands = true;
+    }
+}
+export function toggleSeaMines() {
+    if (addMines === true) {
+        addMines = false;
+    } else {
+        addMines = true;
+    }
+}
+export function setSeaMineNumber(num) {
+    numOfSeaMines = num;
+    if (!num) numOfSeaMines = 0;
+}
 
 // Method for innitializing player board
 export function initPlayerBoard(playerName) {
     const playerBoard = new Gameboard();
     playerBoard.init();
-    playerBoard.placeIslands(2);
-    playerBoard.placeMines(5);
+    if (addIslands === true) playerBoard.placeIslands(numOfIslands);
+    if (addMines === true) playerBoard.placeMines(numOfSeaMines);
 
     return playerBoard;
 }
@@ -23,8 +46,8 @@ export function initPlayerBoard(playerName) {
 export function initAiBoard() {
     const aiGameboard = new Gameboard();
     aiGameboard.init();
-    aiGameboard.placeIslands(2);
-    aiGameboard.placeMines(5);
+    if (addIslands === true) aiGameboard.placeIslands(numOfIslands);
+    if (addMines === true) aiGameboard.placeMines(numOfSeaMines);
     aiGameboard.placeShipsRandomly();
 
     return aiGameboard;

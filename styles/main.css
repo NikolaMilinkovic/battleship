@@ -115,13 +115,14 @@ table {
     --focus-color: #10a7a7;
     --input-blue-color: #006595;
 }
+
+/* SOUND ON OFF MODAL */
 #user-sound-input-background{
     display: flex;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 100;
-    background-color: #160038;
     width: 100%;
     height: 100%;
     width: 100vw;
@@ -151,17 +152,29 @@ table {
 }
 #sound-buttons-container{
     display: flex;
+    width: fit-content;
     gap: 1rem;
+    align-self: center;
 }
 #audio-controls-modal-container{
     display: flex;
     position: relative;
-    min-height: 30px;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
 }
-
-
-
-
+#audio-icon-modal-container{
+    display: flex;
+    width: fit-content;
+    height: fit-content;
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+/* \ SOUND ON OFF MODAL */
+.pointer-event-none{
+    pointer-events: none !important;
+}
 
 #volume-container {
     z-index: 69;
@@ -173,8 +186,10 @@ table {
     right: 50px;
 }
 .move-volume-container{
-    left: 130px !important;
-    top: 10px !important;
+    left: 14px !important;
+    top: 14px !important;
+    pointer-events: none;
+    scale: 1.3;
 }
 .audio-control{
     height: 35px;
@@ -250,6 +265,20 @@ h2{
 
     background-color: var(--background-color);
     background-color: rgba(0, 13, 31, 0.7);
+}
+.form-opacity-0{
+    opacity: 0;
+}
+.fade-in-form-container{
+    animation: fade-in-form 1s linear forwards;
+}
+@keyframes fade-in-form {
+    from{
+        opacity: 0;
+    }
+    to{
+        opacity: 1;
+    }
 }
 .hero-container{
     text-align: center;
@@ -342,6 +371,14 @@ form{
     position: relative;
     margin-left: auto;
     margin-top: 10%;
+}
+#btn-yes-container,
+#btn-no-container {
+    /* display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: fit-content !important;
+    height: fit-content !important; */
 }
 #btn-flex-container{
     margin-top: auto;
@@ -643,6 +680,7 @@ html, body {
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
+
 .cabin-btn{
     color: white;
     font-weight: bold;
@@ -1106,19 +1144,68 @@ img#vector-11{
 }
 #after-game-container{
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 100%;
     background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
     border-radius: 10px;
     border: 2px solid #560F15;
-    padding: 4rem;
+    padding: 2rem;
 }
 #hero-announcement-message{
     color: #560F15;
     font-size: 36px;
     font-weight: bold;
     text-align: center;
+}
+#after-game-btns{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: auto;
+    margin-top: 2rem;
+    gap: 2rem;
+}
+#btn-play-again,
+#btn-settings{
+    padding: 16px;
+}
+#settings-container{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-content: center;
+    width: 100%;
+    background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+    border-radius: 10px;
+    border: 2px solid #560F15;
+    padding: 2rem;
+    margin-top: 3rem;
+}
+#btn-islands,
+#btn-seaMine{
+    min-width: 100px;
+}
+.sub-settings-container{
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.settings-text{
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: auto;
+}
+#sea-mine-num-input{
+    padding: 8px;
+    max-width: 100px;
+    border: 2px solid #560F15;
+    border-radius: 10px;
+    text-align: center;
+    background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+    box-sizing: border-box;
 }
 
 

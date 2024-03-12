@@ -114,3 +114,17 @@ export function paraImg(src = '', classArr = ['para'], id = '', dataX = '', data
 
     return img;
 }
+
+export function createCheckbox(classArr = [], id = '') {
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    if (id) cb.setAttribute('id', `${id}`);
+    if (classArr) {
+        classArr.forEach((className) => {
+            cb.classList.add(className);
+        });
+    }
+
+
+    return cb;
+}
