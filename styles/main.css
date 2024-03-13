@@ -1335,7 +1335,95 @@ img#vector-11{
     }
 }
 
+@media screen and (max-width: 1300px) and (orientation: landscape) {
+    body,html{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        max-height: 100vh;
+        max-width: 100vw;
+        overflow: hidden;
+    }
+    #dialogue-container.ship-cabin-dialogue-container{
+        display: flex;
+        flex-direction: column;
+        max-width: 400px;
+        height: min-content;
+        top: 8vh;
+        left: calc(50vw - calc(var(--width) / 2));
+    }
+    #volume-container{
+        top: 10px;
+        right: 10px;
+    }
+    .dialogue-blob{
+        display: flex;
+        align-self: center;
+        justify-self: center;
+        font-size: 16px;
+        flex-direction: column;
+        min-width: 100%;
+        background-image: linear-gradient(to right, #FFFFFF 0%, #FAF0E6  51%, #F5F5F5  100%);
+        padding: 8px;
+        margin: 8px 0px;
+        box-sizing: border-box;
+        border-radius: 20px;
+        border: 6px solid #560F15;
+        animation: show-dialogue-box 700ms;
+    } 
+    .dialogue-box-text{
+        font-size: 14px;
+    }
+    .dialogue-blob{
+        margin-top: 8px;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+    }
+    .char-name-label{
+        font-size: 14px;
+    }
+    #player-board{
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        max-width: 400px;
+    }
+    .default-field{
+        display: flex;
+        height: 40px;
+        width: 40px;
+    }
+    .place-ship-data-field{
 
+    }
+    #place-ship-container {
+        padding-right: 80px;
+        position: relative;
+    }
+    #btn-toggle-axis{
+        position: absolute;
+        width: 90px;
+        top: 10px;
+        left: 300px;
+    }
+    .place-ship-data-field{
+        width: 40px;
+        height: 40px;
+    }
+    #plan-fleet-help-container{
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        left: 400px;
+        width: 100%;
+        height: 500px;
+        box-sizing: border-box;
+        align-self: center;
+        align-content: center;
+        padding: 0px 1rem;
+    }
+}
 
 
 
